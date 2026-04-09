@@ -1,0 +1,48 @@
+name: Auto-tag on version bump
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/pycombine/__init__.py"
+
+jobs:
+  tag:
+    name: Create version tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(python -c "import re; m = re.search(r'__version__\s*=\s*[\"\'](.*?)[\"\']', open('src/pycombine/__init__.py').read()); print(m.group(1))")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag $TAG already exists, skipping."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag $TAG does not exist, will create."
+          fi
+
+      - name: Push version tag
+        if: steps.check_tag.outputs.exists == 'false' && !contains(steps.version.outputs.version, 'dev')
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "Pushed tag $TAG — release workflow will now publish to TestPyPI and PyPI."
