@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-04-09
+
+### Changed
+- Version bump to 0.1.1; first release to PyPI and TestPyPI.
+
 ## [0.1.0.dev0] — Initial Python port
 
 ### Added
