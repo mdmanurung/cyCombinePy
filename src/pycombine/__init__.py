@@ -14,7 +14,7 @@ from pycombine.evaluate import (
 from pycombine.normalize import normalize
 from pycombine.preprocessing import transform_asinh
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 __all__ = [
     "__version__",
