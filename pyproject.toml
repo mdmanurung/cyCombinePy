@@ -11,10 +11,10 @@ requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
-    { name = "pycombine contributors" },
+    { name = "Mikhael Manurung" },
 ]
 maintainers = [
-    { name = "pycombine contributors" },
+    { name = "Mikhael Manurung" },
 ]
 keywords = [
     "cytometry",
