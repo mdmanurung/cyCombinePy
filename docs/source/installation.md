@@ -39,8 +39,8 @@ pip install "pycombine[all]"
 Clone the repository and install in editable mode:
 
 ```bash
-git clone https://github.com/mdmanurung/pyCombine.git
-cd pyCombine
+git clone https://github.com/mdmanurung/cyCombinePy.git
+cd cyCombinePy
 pip install -e ".[all,dev]"
 ```
 

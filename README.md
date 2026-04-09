@@ -1,9 +1,9 @@
-# pycombine
+# cyCombinePy
 
 Python port of [cyCombine](https://github.com/biosurf/cyCombine) for batch
 correction of single-cell cytometry data.
 
-pycombine is AnnData-native and reuses existing Python libraries instead of
+cyCombinePy is AnnData-native and reuses existing Python libraries instead of
 reimplementing primitives:
 
 - **ComBat**: [`inmoose.pycombat`](https://github.com/epigenelabs/inmoose)
@@ -104,7 +104,7 @@ pip install -e ".[all,dev]"
 
 ## Citation
 
-If you use pycombine please cite the original cyCombine paper:
+If you use cyCombinePy please cite the original cyCombine paper:
 
 > Pedersen, C.B., Dam, S.H., Barnkob, M.B., *et al.* cyCombine allows for robust
 > integration of single-cell cytometry datasets within and across technologies.

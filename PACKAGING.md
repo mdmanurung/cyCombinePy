@@ -37,7 +37,7 @@ Fields:
 |---|---|
 | PyPI Project Name | `pycombine` |
 | Owner | `mdmanurung` |
-| Repository name | `pyCombine` |
+| Repository name | `cyCombinePy` |
 | Workflow name | `release.yml` |
 | Environment name | `testpypi` (TestPyPI) / `pypi` (PyPI) |
 

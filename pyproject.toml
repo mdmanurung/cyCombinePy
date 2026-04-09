@@ -81,10 +81,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mdmanurung/pyCombine"
-Repository = "https://github.com/mdmanurung/pyCombine"
-Issues = "https://github.com/mdmanurung/pyCombine/issues"
-Changelog = "https://github.com/mdmanurung/pyCombine/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/mdmanurung/cyCombinePy"
+Repository = "https://github.com/mdmanurung/cyCombinePy"
+Issues = "https://github.com/mdmanurung/cyCombinePy/issues"
+Changelog = "https://github.com/mdmanurung/cyCombinePy/blob/main/CHANGELOG.md"
 "Original R package" = "https://github.com/biosurf/cyCombine"
 
 [tool.hatch.version]

@@ -72,10 +72,10 @@ intersphinx_mapping = {
 
 # -- HTML output -----------------------------------------------------------
 html_theme = "furo"
-html_title = f"pycombine {version}"
+html_title = f"cyCombinePy {version}"
 html_static_path = ["_static"]
 html_theme_options = {
-    "source_repository": "https://github.com/mdmanurung/pyCombine",
+    "source_repository": "https://github.com/mdmanurung/cyCombinePy",
     "source_branch": "main",
     "source_directory": "docs/source/",
 }
