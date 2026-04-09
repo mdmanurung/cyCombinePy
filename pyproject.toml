@@ -3,7 +3,7 @@ requires = ["hatchling>=1.22"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pycombine"
+name = "cycombinepy"
 dynamic = ["version"]
 description = "Python port of cyCombine: batch correction of single-cell cytometry data"
 readme = "README.md"
@@ -66,10 +66,10 @@ docs = [
     "sphinx-autodoc-typehints>=2",
 ]
 all = [
-    "pycombine[io,eval,plotting]",
+    "cycombinepy[io,eval,plotting]",
 ]
 dev = [
-    "pycombine[all,docs]",
+    "cycombinepy[all,docs]",
     "pytest>=8",
     "pytest-cov",
     "build>=1.2",
@@ -88,14 +88,14 @@ Changelog = "https://github.com/mdmanurung/cyCombinePy/blob/main/CHANGELOG.md"
 "Original R package" = "https://github.com/biosurf/cyCombine"
 
 [tool.hatch.version]
-path = "src/pycombine/__init__.py"
+path = "src/cycombinepy/__init__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pycombine"]
+packages = ["src/cycombinepy"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "src/pycombine",
+    "src/cycombinepy",
     "tests",
     "README.md",
     "LICENSE",
