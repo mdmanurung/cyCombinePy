@@ -1,15 +1,48 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.22"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pycombine"
-version = "0.1.0.dev0"
+dynamic = ["version"]
 description = "Python port of cyCombine: batch correction of single-cell cytometry data"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
-authors = [{ name = "cyCombine authors" }]
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "pycombine contributors" },
+]
+maintainers = [
+    { name = "pycombine contributors" },
+]
+keywords = [
+    "cytometry",
+    "flow-cytometry",
+    "cytof",
+    "mass-cytometry",
+    "batch-correction",
+    "combat",
+    "flowsom",
+    "single-cell",
+    "anndata",
+    "bioinformatics",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
+]
 dependencies = [
     "anndata>=0.10",
     "numpy>=1.24",
@@ -27,18 +60,45 @@ io = ["pytometry>=0.1.5"]
 eval = ["scib-metrics>=0.5"]
 plotting = ["matplotlib>=3.7", "seaborn>=0.13"]
 all = [
-    "pytometry>=0.1.5",
-    "scib-metrics>=0.5",
-    "matplotlib>=3.7",
-    "seaborn>=0.13",
+    "pycombine[io,eval,plotting]",
 ]
 dev = [
+    "pycombine[all]",
     "pytest>=8",
     "pytest-cov",
+    "build>=1.2",
+    "twine>=5",
 ]
+
+[project.urls]
+Homepage = "https://github.com/mdmanurung/pyCombine"
+Repository = "https://github.com/mdmanurung/pyCombine"
+Issues = "https://github.com/mdmanurung/pyCombine/issues"
+Changelog = "https://github.com/mdmanurung/pyCombine/blob/main/CHANGELOG.md"
+"Original R package" = "https://github.com/biosurf/cyCombine"
+
+[tool.hatch.version]
+path = "src/pycombine/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pycombine"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/pycombine",
+    "tests",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "pyproject.toml",
+]
+exclude = [
+    "inst/**",
+    "**/__pycache__",
+    "**/*.pyc",
+    "**/.pytest_cache",
+    ".github/**",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
