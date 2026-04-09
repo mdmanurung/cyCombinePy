@@ -14,7 +14,7 @@ from cycombinepy.evaluate import (
 from cycombinepy.normalize import normalize
 from cycombinepy.preprocessing import transform_asinh
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 __all__ = [
     "__version__",
