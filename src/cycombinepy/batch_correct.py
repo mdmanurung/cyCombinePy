@@ -10,7 +10,9 @@ from __future__ import annotations
 
 from typing import Iterable, Sequence
 
+import anndata as ad
 import numpy as np
+import pandas as pd
 from anndata import AnnData
 
 from cycombinepy._utils import marker_matrix, resolve_markers, set_marker_matrix
@@ -23,6 +25,28 @@ def _as_list(v) -> list:
     if isinstance(v, (list, tuple, np.ndarray)):
         return list(v)
     return [v]
+
+
+def _build_scratch(
+    adata: AnnData,
+    markers: list[str],
+    working: np.ndarray,
+    needed_obs_keys: list[str],
+) -> AnnData:
+    """Build a minimal AnnData shim for iterative normalize/cluster/correct.
+
+    Shares only the obs columns that downstream steps actually read, carries
+    ``working`` as ``X`` (so no full-matrix copy), and uses ``markers`` as
+    ``var_names`` so ``marker_matrix`` lookups still resolve. ``obs`` is a
+    shallow per-column copy so that downstream label writes don't leak back.
+    """
+    obs = pd.DataFrame(
+        {k: adata.obs[k].values for k in needed_obs_keys if k in adata.obs.columns},
+        index=adata.obs.index,
+    )
+    shim = ad.AnnData(X=working, obs=obs)
+    shim.var_names = list(markers)
+    return shim
 
 
 def batch_correct(
@@ -89,12 +113,18 @@ def batch_correct(
 
     # Working copy of the marker matrix that accumulates corrections between
     # iterations. Clustering sees a normalized view; correction sees the current
-    # unnormalized working state.
-    working = marker_matrix(adata, markers).copy()
-    scratch = adata.copy()
+    # unnormalized working state. marker_matrix already returns a fresh array, so
+    # no extra .copy() is needed here.
+    working = marker_matrix(adata, markers)
+
+    # Only carry the obs columns downstream helpers actually read. This avoids
+    # the large `adata.copy()` that was previously run per call.
+    needed_obs_keys = [k for k in (batch_key, covar, anchor) if k is not None]
+    scratch = _build_scratch(adata, markers, working, needed_obs_keys)
 
     for x, y in zip(xdims, ydims):
-        # Normalize + cluster on a fresh normalized view.
+        # Normalize + cluster on a fresh normalized view. Re-seat the current
+        # working state as scratch.X (in place — _can_write_in_place hits).
         set_marker_matrix(scratch, markers, working)
         normalize(
             scratch,

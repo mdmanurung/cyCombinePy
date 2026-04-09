@@ -72,15 +72,47 @@ def as_dense(x) -> np.ndarray:
     return np.asarray(x)
 
 
-def marker_matrix(adata: AnnData, markers: list[str], layer: str | None = None) -> np.ndarray:
-    """Extract a (n_cells, n_markers) dense float array for the given markers."""
-    idx = [adata.var_names.get_loc(m) for m in markers]
-    if layer is None:
-        X = adata.X
+def _marker_indices(adata: AnnData, markers: list[str]) -> np.ndarray:
+    """Resolve marker names to an integer column index array."""
+    get_loc = adata.var_names.get_loc
+    return np.fromiter((get_loc(m) for m in markers), dtype=np.intp, count=len(markers))
+
+
+def marker_matrix(
+    adata: AnnData,
+    markers: list[str],
+    layer: str | None = None,
+    dtype=float,
+) -> np.ndarray:
+    """Extract a (n_cells, n_markers) dense array for the given markers.
+
+    Parameters
+    ----------
+    dtype
+        Target dtype. Defaults to ``float`` (float64) for backwards
+        compatibility. Pass ``None`` to preserve the source dtype, which avoids
+        an unnecessary upcast when the source is already float32/float64.
+    """
+    idx = _marker_indices(adata, markers)
+    X = adata.X if layer is None else adata.layers[layer]
+    # Fancy indexing always returns a fresh copy, so no extra .copy() is needed.
+    if hasattr(X, "toarray"):
+        # Only materialize the requested columns from sparse to dense.
+        sub = np.asarray(X[:, idx].toarray())
     else:
-        X = adata.layers[layer]
-    X = as_dense(X)
-    return np.asarray(X[:, idx], dtype=float)
+        sub = np.asarray(X)[:, idx]
+    if dtype is not None and sub.dtype != np.dtype(dtype):
+        sub = sub.astype(dtype, copy=False)
+    return sub
+
+
+def _can_write_in_place(arr) -> bool:
+    """True if ``arr`` is a writeable dense ndarray we can assign into."""
+    return (
+        isinstance(arr, np.ndarray)
+        and arr.flags.writeable
+        and np.issubdtype(arr.dtype, np.floating)
+    )
 
 
 def set_marker_matrix(
@@ -89,18 +121,43 @@ def set_marker_matrix(
     values: np.ndarray,
     layer: str | None = None,
 ) -> None:
-    """Write ``values`` (n_cells, n_markers) back into ``adata.X`` or a layer."""
-    idx = [adata.var_names.get_loc(m) for m in markers]
+    """Write ``values`` (n_cells, n_markers) back into ``adata.X`` or a layer.
+
+    Writes in place when the target is already a writeable dense float ndarray
+    (and the AnnData is not a view), avoiding full-matrix copies on the hot path.
+    Falls back to a single dense-float materialization for sparse/non-float
+    targets.
+    """
+    idx = _marker_indices(adata, markers)
+
     if layer is None:
-        X = as_dense(adata.X).astype(float, copy=True)
+        target = adata.X
+        if _can_write_in_place(target) and not adata.is_view:
+            # In-place column write: no allocation.
+            if values.dtype != target.dtype:
+                values = values.astype(target.dtype, copy=False)
+            target[:, idx] = values
+            return
+        # Fallback: single materialization to a writable float ndarray.
+        X = as_dense(target).astype(float, copy=True)
         X[:, idx] = values
         adata.X = X
+        return
+
+    existing = adata.layers.get(layer) if layer in adata.layers else None
+    if existing is not None and _can_write_in_place(existing) and not adata.is_view:
+        if values.dtype != existing.dtype:
+            values = values.astype(existing.dtype, copy=False)
+        existing[:, idx] = values
+        return
+
+    if existing is None:
+        # Initialise the layer from X with a single dense-float materialization.
+        L = as_dense(adata.X).astype(float, copy=True)
     else:
-        if layer not in adata.layers:
-            adata.layers[layer] = as_dense(adata.X).astype(float, copy=True)
-        L = as_dense(adata.layers[layer]).astype(float, copy=True)
-        L[:, idx] = values
-        adata.layers[layer] = L
+        L = as_dense(existing).astype(float, copy=True)
+    L[:, idx] = values
+    adata.layers[layer] = L
 
 
 def check_confound(batch, mod: np.ndarray | None = None) -> bool:
@@ -110,9 +167,14 @@ def check_confound(batch, mod: np.ndarray | None = None) -> bool:
     Tests for rank deficiency of ``[batch_dummies | mod]`` after dropping intercept-
     like columns.
     """
-    batch = pd.Series(batch).astype("category")
-    # one-hot (no intercept) batch model
-    batchmod = pd.get_dummies(batch, drop_first=False).to_numpy(dtype=float)
+    # Categorical codes avoid the per-call pandas get_dummies overhead.
+    cat = pd.Categorical(batch)
+    codes = cat.codes
+    n_levels = len(cat.categories)
+    if n_levels == 0:
+        batchmod = np.zeros((len(codes), 0), dtype=np.float64)
+    else:
+        batchmod = np.eye(n_levels, dtype=np.float64)[codes]
 
     if mod is None:
         design = batchmod

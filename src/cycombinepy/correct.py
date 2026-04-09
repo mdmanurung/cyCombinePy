@@ -124,34 +124,57 @@ def correct_data(
         adata = adata.copy()
 
     X = marker_matrix(adata, markers, layer=layer)  # (n_cells, n_markers)
-    n_cells = X.shape[0]
 
-    labels = adata.obs[label_key].astype(str).to_numpy()
-    batches = adata.obs[batch_key].astype(str).to_numpy()
+    # Convert label/batch to categorical codes once; group rows by label via
+    # a single stable argsort + np.split to avoid the per-cluster O(N)
+    # boolean scans that the previous implementation did.
+    label_cat = pd.Categorical(adata.obs[label_key].astype(str).to_numpy())
+    batch_cat = pd.Categorical(adata.obs[batch_key].astype(str).to_numpy())
+    label_codes = label_cat.codes
+    batch_codes = batch_cat.codes
+    batch_categories = np.asarray(batch_cat.categories)
+
+    order = np.argsort(label_codes, kind="stable")
+    # Boundaries between sorted label groups.
+    sorted_codes = label_codes[order]
+    boundaries = np.flatnonzero(np.diff(sorted_codes)) + 1
+    cluster_index_groups = np.split(order, boundaries)
+
+    # Pre-slice obs columns needed for covar/anchor as integer code arrays;
+    # we only materialize a small per-cluster DataFrame when _build_model_matrix
+    # is actually called.
+    obs = adata.obs
 
     corrected = X.copy()
 
-    for lab in pd.unique(labels):
-        idx = np.where(labels == lab)[0]
+    for idx in cluster_index_groups:
         if idx.size == 0:
             continue
         sub_X = X[idx]  # (n_sub, n_markers)
-        sub_batch = pd.Series(batches[idx])
+        sub_batch_codes = batch_codes[idx]
 
-        uniq_batches = sub_batch.unique()
-        if uniq_batches.size <= 1:
+        # Detect the set of distinct batches present in this cluster without
+        # falling back to pandas.
+        present_codes = np.unique(sub_batch_codes)
+        if present_codes.size <= 1:
             # Only one batch in this cluster — nothing to correct. (R lines 448-452)
             continue
 
-        sub_df = adata.obs.iloc[idx]
+        sub_batch_values = batch_categories[sub_batch_codes]
+        sub_batch = pd.Series(sub_batch_values)
 
-        # Covar / anchor handling: determine effective level count
+        # Covar / anchor handling: determine effective level count.
         num_covar = 1
+        num_anchor = 1
+        sub_df = None  # lazy — only built when needed
+
+        if covar is not None or anchor is not None:
+            sub_df = obs.iloc[idx]
+
         if covar is not None:
             cov_design = _build_model_matrix(sub_df, covar, None)
             num_covar = _resolve_num_factors(sub_df[covar], sub_batch, cov_design)
 
-        num_anchor = 1
         if anchor is not None:
             anc_design = _build_model_matrix(sub_df, None, anchor)
             num_anchor = _resolve_num_factors(sub_df[anchor], sub_batch, anc_design)
@@ -165,14 +188,21 @@ def correct_data(
 
         eff_covar = covar if num_covar > 1 else None
         eff_anchor = anchor if num_anchor > 1 else None
-        mod = _build_model_matrix(sub_df, eff_covar, eff_anchor)
+        if eff_covar is None and eff_anchor is None:
+            mod = None
+        else:
+            if sub_df is None:
+                sub_df = obs.iloc[idx]
+            mod = _build_model_matrix(sub_df, eff_covar, eff_anchor)
 
-        # inmoose expects (n_features, n_samples)
-        x_t = sub_X.T
+        # inmoose expects (n_features, n_samples) and is sensitive to float32
+        # underflow in its EB priors → upcast to float64 at the ComBat boundary.
+        x_t = np.ascontiguousarray(sub_X.T, dtype=np.float64)
+        lab = label_cat.categories[label_codes[idx[0]]]
         try:
             corrected_sub = run_combat(
                 x_t,
-                batch=sub_batch.values,
+                batch=sub_batch_values,
                 mod=mod,
                 parametric=parametric,
                 ref_batch=ref_batch,
@@ -189,9 +219,14 @@ def correct_data(
             continue
 
         # Cap to per-marker min/max within this cluster (R lines 524-531).
+        # Fuse the clip into a single maximum/minimum pair to avoid the extra
+        # allocation from ``np.clip``.
         lo = sub_X.min(axis=0)
         hi = sub_X.max(axis=0)
-        corrected_sub = np.clip(corrected_sub, lo, hi)
+        if corrected_sub.dtype != X.dtype:
+            corrected_sub = corrected_sub.astype(X.dtype, copy=False)
+        np.maximum(corrected_sub, lo, out=corrected_sub)
+        np.minimum(corrected_sub, hi, out=corrected_sub)
 
         corrected[idx] = corrected_sub
 

@@ -39,26 +39,49 @@ def compute_emd(
     labels = adata.obs[cell_key].astype(str).to_numpy()
     batches = adata.obs[batch_key].astype(str).to_numpy()
 
-    rows: list[dict] = []
-    for lab in np.unique(labels):
+    # Two passes: first count, then fill preallocated arrays. This avoids the
+    # list-of-dicts intermediate and the per-row DataFrame construction cost.
+    n_markers = len(markers)
+    uniq_labels = np.unique(labels)
+    plan: list[tuple] = []  # (lab, b1, b2, A_idx, B_idx)
+    for lab in uniq_labels:
         mask_l = labels == lab
         present = sorted(np.unique(batches[mask_l]).tolist())
         for b1, b2 in combinations(present, 2):
-            A = X[mask_l & (batches == b1)]
-            B = X[mask_l & (batches == b2)]
-            if A.size == 0 or B.size == 0:
+            A_idx = np.flatnonzero(mask_l & (batches == b1))
+            B_idx = np.flatnonzero(mask_l & (batches == b2))
+            if A_idx.size == 0 or B_idx.size == 0:
                 continue
-            for j, marker in enumerate(markers):
-                rows.append(
-                    {
-                        "cluster": lab,
-                        "marker": marker,
-                        "batch1": b1,
-                        "batch2": b2,
-                        "emd": float(wasserstein_distance(A[:, j], B[:, j])),
-                    }
-                )
-    return pd.DataFrame(rows)
+            plan.append((lab, b1, b2, A_idx, B_idx))
+
+    n_rows = len(plan) * n_markers
+    cluster_col = np.empty(n_rows, dtype=object)
+    marker_col = np.empty(n_rows, dtype=object)
+    batch1_col = np.empty(n_rows, dtype=object)
+    batch2_col = np.empty(n_rows, dtype=object)
+    emd_col = np.empty(n_rows, dtype=np.float64)
+
+    k = 0
+    for lab, b1, b2, A_idx, B_idx in plan:
+        A = X[A_idx]
+        B = X[B_idx]
+        for j, marker in enumerate(markers):
+            cluster_col[k] = lab
+            marker_col[k] = marker
+            batch1_col[k] = b1
+            batch2_col[k] = b2
+            emd_col[k] = wasserstein_distance(A[:, j], B[:, j])
+            k += 1
+
+    return pd.DataFrame(
+        {
+            "cluster": cluster_col,
+            "marker": marker_col,
+            "batch1": batch1_col,
+            "batch2": batch2_col,
+            "emd": emd_col,
+        }
+    )
 
 
 def evaluate_emd(
@@ -96,25 +119,44 @@ def compute_mad(
     labels = adata.obs[cell_key].astype(str).to_numpy()
     batches = adata.obs[batch_key].astype(str).to_numpy()
 
-    rows: list[dict] = []
-    for lab in np.unique(labels):
-        for b in np.unique(batches[labels == lab]):
-            mask = (labels == lab) & (batches == b)
-            block = X[mask]
-            if block.size == 0:
+    n_markers = len(markers)
+    uniq_labels = np.unique(labels)
+
+    plan: list[tuple] = []  # (lab, b, block_idx)
+    for lab in uniq_labels:
+        mask_l = labels == lab
+        for b in np.unique(batches[mask_l]):
+            block_idx = np.flatnonzero(mask_l & (batches == b))
+            if block_idx.size == 0:
                 continue
-            med = np.median(block, axis=0)
-            mad = np.median(np.abs(block - med), axis=0)
-            for j, marker in enumerate(markers):
-                rows.append(
-                    {
-                        "cluster": lab,
-                        "marker": marker,
-                        "batch": b,
-                        "mad": float(mad[j]),
-                    }
-                )
-    return pd.DataFrame(rows)
+            plan.append((lab, b, block_idx))
+
+    n_rows = len(plan) * n_markers
+    cluster_col = np.empty(n_rows, dtype=object)
+    marker_col = np.empty(n_rows, dtype=object)
+    batch_col = np.empty(n_rows, dtype=object)
+    mad_col = np.empty(n_rows, dtype=np.float64)
+
+    k = 0
+    for lab, b, block_idx in plan:
+        block = X[block_idx]
+        med = np.median(block, axis=0)
+        mad = np.median(np.abs(block - med), axis=0)
+        for j, marker in enumerate(markers):
+            cluster_col[k] = lab
+            marker_col[k] = marker
+            batch_col[k] = b
+            mad_col[k] = mad[j]
+            k += 1
+
+    return pd.DataFrame(
+        {
+            "cluster": cluster_col,
+            "marker": marker_col,
+            "batch": batch_col,
+            "mad": mad_col,
+        }
+    )
 
 
 def evaluate_mad(
