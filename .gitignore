@@ -27,3 +27,7 @@ env/
 .idea/
 .vscode/
 *.swp
+
+# Sphinx documentation build artifacts
+docs/build/
+docs/source/generated/

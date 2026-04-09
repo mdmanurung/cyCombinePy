@@ -56,18 +56,28 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-io = ["pytometry>=0.1.5"]
+io = ["pytometry>=0.1.5", "readfcs>=2"]
 eval = ["scib-metrics>=0.5"]
 plotting = ["matplotlib>=3.7", "seaborn>=0.13"]
+docs = [
+    "sphinx>=7",
+    "furo>=2024.1",
+    "myst-nb>=1.1",
+    "sphinx-autodoc-typehints>=2",
+]
 all = [
     "pycombine[io,eval,plotting]",
 ]
 dev = [
-    "pycombine[all]",
+    "pycombine[all,docs]",
     "pytest>=8",
     "pytest-cov",
     "build>=1.2",
     "twine>=5",
+    "jupyter",
+    "nbclient",
+    "nbconvert",
+    "nbformat",
 ]
 
 [project.urls]
