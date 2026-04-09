@@ -17,10 +17,10 @@ reimplementing primitives:
 
 The cyCombine workflow ports over unchanged:
 
-1. **Batch-wise normalize** expression per marker (`pycombine.normalize`)
-2. **Self-organizing map** clustering of cells (`pycombine.create_som`)
+1. **Batch-wise normalize** expression per marker (`cycombinepy.normalize`)
+2. **Self-organizing map** clustering of cells (`cycombinepy.create_som`)
 3. **Per-cluster ComBat** correction with optional covariates and anchors
-   (`pycombine.correct_data`)
+   (`cycombinepy.correct_data`)
 
 Step 1 operates on a normalized view so clusters represent biology rather than
 batch. Step 3 is applied to the unnormalized data per cluster so rare
@@ -29,7 +29,7 @@ populations aren't over-corrected.
 ## Quickstart
 
 ```python
-import pycombine as pc
+import cycombinepy as pc
 
 # 1. Load FCS files into AnnData
 adata = pc.io.read_fcs_dir(
@@ -53,7 +53,7 @@ pc.batch_correct(
 # Corrected matrix is now in adata.layers["cycombine_corrected"]
 
 # 4. Evaluate
-from pycombine.correct import CORRECTED_LAYER
+from cycombinepy.correct import CORRECTED_LAYER
 uncorr = pc.compute_emd(adata, cell_key="cycombine_som")
 corr   = pc.compute_emd(adata, cell_key="cycombine_som", layer=CORRECTED_LAYER)
 report = pc.evaluate_emd(uncorr, corr)
@@ -83,8 +83,8 @@ pc.correct_data(adata, label_key="cycombine_som", covar="condition")
 | `detect_batch_effect`, `detect_batch_effect_express` | Diagnostic plots |
 | `get_markers`, `check_confound` | Utilities |
 
-FCS I/O lives in `pycombine.io`, plotting in `pycombine.plotting`, and an
-optional `scib_metrics` wrapper in `pycombine.evaluate`.
+FCS I/O lives in `cycombinepy.io`, plotting in `cycombinepy.plotting`, and an
+optional `scib_metrics` wrapper in `cycombinepy.evaluate`.
 
 ## Installation
 
