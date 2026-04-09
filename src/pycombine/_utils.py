@@ -113,7 +113,6 @@ def check_confound(batch, mod: np.ndarray | None = None) -> bool:
     batch = pd.Series(batch).astype("category")
     # one-hot (no intercept) batch model
     batchmod = pd.get_dummies(batch, drop_first=False).to_numpy(dtype=float)
-    n_batch = batchmod.shape[1]
 
     if mod is None:
         design = batchmod
@@ -131,17 +130,7 @@ def check_confound(batch, mod: np.ndarray | None = None) -> bool:
         return False
 
     rank = np.linalg.matrix_rank(design)
-    ncol = design.shape[1]
-    if rank >= ncol:
-        return False
-
-    # Rank-deficient. Mirror the R branch logic:
-    if ncol == n_batch + 1:
-        return True
-    if ncol > n_batch + 1:
-        # Check whether the covariate block alone is rank-deficient
-        cov_only = design[:, n_batch:]
-        if cov_only.size and np.linalg.matrix_rank(cov_only) < cov_only.shape[1]:
-            return True
-        return True
-    return False
+    # Rank-deficient design after dropping intercept columns ⇒ confounded.
+    # The R version branches on ncol vs n_batch for messaging, but the final
+    # result is TRUE in every sub-branch.
+    return bool(rank < design.shape[1])

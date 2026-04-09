@@ -7,7 +7,6 @@ reduction, and an EMD heatmap summary.
 from __future__ import annotations
 
 import os
-from pathlib import Path
 from typing import Iterable
 
 import numpy as np
@@ -36,25 +35,25 @@ def plot_density(
     markers = resolve_markers(adata, markers)
     batches = adata.obs[batch_key].astype(str).values
 
-    rows = []
-    X = marker_matrix(adata, markers)
-    for j, marker in enumerate(markers):
-        for v, b in zip(X[:, j], batches):
-            rows.append({"marker": marker, "value": v, batch_key: b, "kind": "uncorrected"})
-    if layer is not None and layer in adata.layers:
-        X2 = marker_matrix(adata, markers, layer=layer)
-        for j, marker in enumerate(markers):
-            for v, b in zip(X2[:, j], batches):
-                rows.append({"marker": marker, "value": v, batch_key: b, "kind": "corrected"})
+    def _melt(X: np.ndarray, kind: str) -> pd.DataFrame:
+        df = pd.DataFrame(X, columns=list(markers))
+        df[batch_key] = batches
+        df["kind"] = kind
+        return df.melt(id_vars=[batch_key, "kind"], var_name="marker", value_name="value")
 
-    df = pd.DataFrame(rows)
+    parts = [_melt(marker_matrix(adata, markers), "uncorrected")]
+    has_corrected = layer is not None and layer in adata.layers
+    if has_corrected:
+        parts.append(_melt(marker_matrix(adata, markers, layer=layer), "corrected"))
+    df = pd.concat(parts, ignore_index=True)
+
     g = sns.FacetGrid(
         df,
         col="marker",
-        row="kind" if "corrected" in df["kind"].unique() else None,
+        row="kind" if has_corrected else None,
         hue=batch_key,
         sharey=False,
-        col_wrap=None if "corrected" in df["kind"].unique() else 4,
+        col_wrap=None if has_corrected else 4,
     )
     g.map(sns.kdeplot, "value", fill=True, alpha=0.3, common_norm=False)
     g.add_legend()

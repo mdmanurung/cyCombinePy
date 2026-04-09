@@ -18,27 +18,6 @@ from scipy.stats import wasserstein_distance
 from pycombine._utils import check_obs_key, marker_matrix, resolve_markers
 
 
-def _values_by(
-    adata: AnnData,
-    markers: list[str],
-    layer: str | None,
-    cell_key: str,
-    batch_key: str,
-) -> dict:
-    """Return a nested dict ``{cluster: {batch: (n, n_markers) array}}``."""
-    X = marker_matrix(adata, markers, layer=layer)
-    labels = adata.obs[cell_key].astype(str).to_numpy()
-    batches = adata.obs[batch_key].astype(str).to_numpy()
-    out: dict = {}
-    for lab in np.unique(labels):
-        mask_l = labels == lab
-        out[lab] = {}
-        for b in np.unique(batches[mask_l]):
-            mask = mask_l & (batches == b)
-            out[lab][b] = X[mask]
-    return out
-
-
 def compute_emd(
     adata: AnnData,
     cell_key: str = "cycombine_som",
@@ -56,20 +35,23 @@ def compute_emd(
     check_obs_key(adata, cell_key)
     check_obs_key(adata, batch_key)
     markers = resolve_markers(adata, markers)
-    data = _values_by(adata, markers, layer, cell_key, batch_key)
+    X = marker_matrix(adata, markers, layer=layer)
+    labels = adata.obs[cell_key].astype(str).to_numpy()
+    batches = adata.obs[batch_key].astype(str).to_numpy()
 
     rows: list[dict] = []
-    for cluster, by_batch in data.items():
-        batches = sorted(by_batch.keys())
-        for b1, b2 in combinations(batches, 2):
-            A = by_batch[b1]
-            B = by_batch[b2]
-            if len(A) == 0 or len(B) == 0:
+    for lab in np.unique(labels):
+        mask_l = labels == lab
+        present = sorted(np.unique(batches[mask_l]).tolist())
+        for b1, b2 in combinations(present, 2):
+            A = X[mask_l & (batches == b1)]
+            B = X[mask_l & (batches == b2)]
+            if A.size == 0 or B.size == 0:
                 continue
             for j, marker in enumerate(markers):
                 rows.append(
                     {
-                        "cluster": cluster,
+                        "cluster": lab,
                         "marker": marker,
                         "batch1": b1,
                         "batch2": b2,

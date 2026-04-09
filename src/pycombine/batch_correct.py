@@ -87,25 +87,24 @@ def batch_correct(
     if len(xdims) != len(ydims):
         raise ValueError("xdim and ydim must have the same length")
 
-    # Snapshot the starting matrix — clustering operates on a normalized copy but
-    # correction is applied to the current "working" expression.
+    # Working copy of the marker matrix that accumulates corrections between
+    # iterations. Clustering sees a normalized view; correction sees the current
+    # unnormalized working state.
     working = marker_matrix(adata, markers).copy()
+    scratch = adata.copy()
 
     for x, y in zip(xdims, ydims):
-        # 1. Build a normalized view for clustering without touching `adata.X`.
-        norm_view = adata.copy()
-        set_marker_matrix(norm_view, markers, working)
+        # Normalize + cluster on a fresh normalized view.
+        set_marker_matrix(scratch, markers, working)
         normalize(
-            norm_view,
+            scratch,
             markers=markers,
             method=norm_method,
             batch_key=batch_key,
             ties_method=ties_method,
         )
-
-        # 2. Cluster on the normalized view, store labels on `adata.obs`.
         create_som(
-            norm_view,
+            scratch,
             markers=markers,
             xdim=x,
             ydim=y,
@@ -114,13 +113,12 @@ def batch_correct(
             rlen=rlen,
             label_key=label_key,
         )
-        adata.obs[label_key] = norm_view.obs[label_key].values
+        adata.obs[label_key] = scratch.obs[label_key].values
 
-        # 3. Correct the *working* (not normalized) values per cluster.
-        work_view = adata.copy()
-        set_marker_matrix(work_view, markers, working)
+        # Correct the (unnormalized) working state per cluster.
+        set_marker_matrix(scratch, markers, working)
         correct_data(
-            work_view,
+            scratch,
             label_key=label_key,
             markers=markers,
             batch_key=batch_key,
@@ -130,7 +128,7 @@ def batch_correct(
             ref_batch=ref_batch,
             out_layer=out_layer,
         )
-        working = marker_matrix(work_view, markers, layer=out_layer)
+        working = marker_matrix(scratch, markers, layer=out_layer)
 
     set_marker_matrix(adata, markers, working, layer=out_layer)
     return adata if copy else None

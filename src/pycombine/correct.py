@@ -34,36 +34,21 @@ def _build_model_matrix(
 ) -> np.ndarray | None:
     """Build a design matrix (sans intercept) from covar and/or anchor columns.
 
-    Uses :mod:`formulaic` if available so the output matches R's
-    ``stats::model.matrix`` (treatment contrasts, drop first level). Falls back
-    to pandas ``get_dummies`` otherwise.
+    Uses :mod:`formulaic` to match R's ``stats::model.matrix`` (treatment
+    contrasts, drop first level).
     """
-    terms = []
-    if covar is not None:
-        terms.append(covar)
-    if anchor is not None:
-        terms.append(anchor)
+    from formulaic import model_matrix
+
+    terms = [t for t in (covar, anchor) if t is not None]
     if not terms:
         return None
 
-    try:
-        from formulaic import model_matrix
-
-        formula = " + ".join(terms)
-        mm = model_matrix(formula, df_sub.assign(**{t: df_sub[t].astype("category") for t in terms}))
-        arr = np.asarray(mm, dtype=float)
-        # Drop the intercept column so we hand inmoose a pure covariate block.
-        if arr.shape[1] and np.all(arr[:, 0] == 1):
-            arr = arr[:, 1:]
-        return arr if arr.size else None
-    except ImportError:
-        pieces = []
-        for t in terms:
-            pieces.append(
-                pd.get_dummies(df_sub[t].astype("category"), drop_first=True).to_numpy(dtype=float)
-            )
-        arr = np.hstack(pieces) if pieces else None
-        return arr if arr is not None and arr.size else None
+    sub = df_sub[terms].astype("category")
+    mm = np.asarray(model_matrix(" + ".join(terms), sub), dtype=float)
+    # Drop the intercept column so we hand inmoose a pure covariate block.
+    if mm.shape[1] and np.all(mm[:, 0] == 1):
+        mm = mm[:, 1:]
+    return mm if mm.size else None
 
 
 def _resolve_num_factors(
