@@ -1,8 +1,8 @@
 import numpy as np
 
-from pycombine import batch_correct
-from pycombine.correct import CORRECTED_LAYER
-from pycombine.evaluate import (
+from cycombinepy import batch_correct
+from cycombinepy.correct import CORRECTED_LAYER
+from cycombinepy.evaluate import (
     compute_emd,
     compute_mad,
     evaluate_emd,

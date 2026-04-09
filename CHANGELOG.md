@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `correct_data`, and the end-to-end `batch_correct` orchestrator.
 - ComBat correction via `inmoose.pycombat.pycombat_norm`.
 - SOM clustering via `FlowSOM_Python`.
-- FCS I/O via `pytometry` / `readfcs` (`pycombine.io.read_fcs_dir`).
+- FCS I/O via `pytometry` / `readfcs` (`cycombinepy.io.read_fcs_dir`).
 - Evaluation utilities: `compute_emd` / `evaluate_emd`,
   `compute_mad` / `evaluate_mad`, and a `scib_metrics` wrapper.
 - Batch-effect detection: `detect_batch_effect` and

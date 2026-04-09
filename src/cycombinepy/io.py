@@ -17,14 +17,14 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
-from pycombine.preprocessing import transform_asinh
+from cycombinepy.preprocessing import transform_asinh
 
 
 def _read_fcs_one(path: str | os.PathLike) -> AnnData:
     """Read a single FCS file into AnnData via pytometry/readfcs.
 
     We import pytometry's reader lazily so that the top-level ``import
-    pycombine.io`` works even if pytometry isn't installed.
+    cycombinepy.io`` works even if pytometry isn't installed.
     """
     try:
         # Import the submodule directly — pytometry's top-level package pulls in
@@ -87,7 +87,7 @@ def read_fcs_dir(
     markers
         Restrict to these var_names after loading (optional).
     transform
-        If True, apply :func:`pycombine.transform_asinh` with ``cofactor``.
+        If True, apply :func:`cycombinepy.transform_asinh` with ``cofactor``.
     cofactor, derand
         Forwarded to ``transform_asinh``.
     downsample

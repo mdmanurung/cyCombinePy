@@ -15,7 +15,7 @@ import pandas as pd
 from anndata import AnnData
 from scipy.stats import wasserstein_distance
 
-from pycombine._utils import check_obs_key, marker_matrix, resolve_markers
+from cycombinepy._utils import check_obs_key, marker_matrix, resolve_markers
 
 
 def compute_emd(
@@ -158,7 +158,7 @@ def scib_metrics(
         from scib_metrics.nearest_neighbors import pynndescent  # type: ignore
     except ImportError as exc:  # pragma: no cover
         raise ImportError(
-            "scib_metrics is required for pycombine.scib_metrics; install with "
+            "scib_metrics is required for cycombinepy.scib_metrics; install with "
             "`pip install scib-metrics`."
         ) from exc
 

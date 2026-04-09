@@ -1,6 +1,6 @@
 # Usage guide
 
-This page introduces the `pycombine` mental model and walks through the
+This page introduces the `cycombinepy` mental model and walks through the
 recommended workflow. For fully runnable end-to-end examples, see the
 two tutorial notebooks:
 
@@ -9,7 +9,7 @@ two tutorial notebooks:
 
 ## Data conventions
 
-`pycombine` operates on an
+`cycombinepy` operates on an
 [`AnnData`](https://anndata.readthedocs.io/) object:
 
 | Slot                                         | Meaning                                     |
@@ -29,12 +29,12 @@ alignment, diagnostic MDS plots, etc.).
 
 ## The pipeline in one call
 
-The most common entry point is `pycombine.batch_correct`, which runs the
+The most common entry point is `cycombinepy.batch_correct`, which runs the
 full pipeline in one call:
 
 ```python
-import pycombine as pc
-from pycombine.correct import CORRECTED_LAYER
+import cycombinepy as pc
+from cycombinepy.correct import CORRECTED_LAYER
 
 pc.batch_correct(
     adata,
@@ -70,7 +70,7 @@ intermediate state.
 ### From a directory of FCS files
 
 ```python
-from pycombine import io as pcio
+from cycombinepy import io as pcio
 
 adata = pcio.read_fcs_dir(
     "data/",
@@ -87,7 +87,7 @@ adata = pcio.read_fcs_dir(
 `read_fcs_dir` wraps
 [`pytometry`](https://github.com/buettnerlab/pytometry) /
 [`readfcs`](https://github.com/laminlabs/readfcs) and applies the
-arcsinh transform in one step. Requires `pip install "pycombine[io]"`.
+arcsinh transform in one step. Requires `pip install "cycombinepy[io]"`.
 
 ### From FCS files with no directory metadata
 
@@ -174,7 +174,7 @@ is confounded with the batch variable — the cluster is left unchanged.
 ## Evaluating a correction
 
 ```python
-from pycombine.correct import CORRECTED_LAYER
+from cycombinepy.correct import CORRECTED_LAYER
 
 emd_before = pc.compute_emd(adata, cell_key="cycombine_som", layer=None)
 emd_after  = pc.compute_emd(adata, cell_key="cycombine_som",
@@ -215,8 +215,8 @@ notebook for a walkthrough.
 ## Plotting helpers
 
 ```python
-from pycombine import plotting as pcpl
-from pycombine.correct import CORRECTED_LAYER
+from cycombinepy import plotting as pcpl
+from cycombinepy.correct import CORRECTED_LAYER
 
 pcpl.plot_dimred(adata, kind="umap", color="batch",
                  layer=CORRECTED_LAYER)

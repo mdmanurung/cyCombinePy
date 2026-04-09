@@ -7,7 +7,7 @@ from typing import Iterable
 import numpy as np
 from anndata import AnnData
 
-from pycombine._utils import marker_matrix, resolve_markers, set_marker_matrix
+from cycombinepy._utils import marker_matrix, resolve_markers, set_marker_matrix
 
 
 def transform_asinh(
@@ -31,7 +31,7 @@ def transform_asinh(
     adata
         AnnData with raw expression in ``adata.X`` (or ``adata.layers[layer]``).
     markers
-        Var names to transform. If ``None``, uses :func:`pycombine.get_markers`.
+        Var names to transform. If ``None``, uses :func:`cycombinepy.get_markers`.
     cofactor
         Asinh cofactor. Common values: 5 (CyTOF), 150 (flow), 6000 (spectral).
     derand

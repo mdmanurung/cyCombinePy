@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from pycombine import check_confound, get_markers
+from cycombinepy import check_confound, get_markers
 
 
 def test_get_markers_excludes_non_markers(synthetic_adata):

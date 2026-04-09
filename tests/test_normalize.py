@@ -1,6 +1,6 @@
 import numpy as np
 
-from pycombine import normalize
+from cycombinepy import normalize
 
 
 def test_normalize_scale_per_batch_has_zero_mean(synthetic_adata):

@@ -2,8 +2,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-from pycombine import batch_correct, compute_emd
-from pycombine.plotting import plot_density, plot_emd_heatmap
+from cycombinepy import batch_correct, compute_emd
+from cycombinepy.plotting import plot_density, plot_emd_heatmap
 
 
 def test_plot_density_returns_figure(synthetic_adata):

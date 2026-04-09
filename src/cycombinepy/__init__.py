@@ -1,18 +1,18 @@
 """cyCombinePy: Python port of cyCombine for batch correction of cytometry data."""
 
-from pycombine._utils import check_confound, get_markers
-from pycombine.batch_correct import batch_correct
-from pycombine.cluster import create_som
-from pycombine.correct import correct_data
-from pycombine.detect import detect_batch_effect, detect_batch_effect_express
-from pycombine.evaluate import (
+from cycombinepy._utils import check_confound, get_markers
+from cycombinepy.batch_correct import batch_correct
+from cycombinepy.cluster import create_som
+from cycombinepy.correct import correct_data
+from cycombinepy.detect import detect_batch_effect, detect_batch_effect_express
+from cycombinepy.evaluate import (
     compute_emd,
     compute_mad,
     evaluate_emd,
     evaluate_mad,
 )
-from pycombine.normalize import normalize
-from pycombine.preprocessing import transform_asinh
+from cycombinepy.normalize import normalize
+from cycombinepy.preprocessing import transform_asinh
 
 __version__ = "0.1.0.dev0"
 

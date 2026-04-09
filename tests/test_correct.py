@@ -1,7 +1,7 @@
 import numpy as np
 
-from pycombine import correct_data, create_som, normalize
-from pycombine.correct import CORRECTED_LAYER
+from cycombinepy import correct_data, create_som, normalize
+from cycombinepy.correct import CORRECTED_LAYER
 
 
 def _batch_mean_gap(X, batch):

@@ -1,6 +1,6 @@
-# pycombine
+# cycombinepy
 
-`pycombine` is a Python port of
+`cycombinepy` is a Python port of
 [cyCombine](https://github.com/biosurf/cyCombine) for batch correction of
 single-cell cytometry data. It is AnnData-native and reuses mature Python
 libraries for the numerical heavy lifting:
@@ -14,10 +14,10 @@ libraries for the numerical heavy lifting:
 
 The pipeline ported over unchanged from the R package is:
 
-1. **Batch-wise normalize** each marker (`pycombine.normalize`)
-2. **Self-organizing map** clustering of cells (`pycombine.create_som`)
+1. **Batch-wise normalize** each marker (`cycombinepy.normalize`)
+2. **Self-organizing map** clustering of cells (`cycombinepy.create_som`)
 3. **Per-cluster ComBat** correction with optional covariates
-   (`pycombine.correct_data`)
+   (`cycombinepy.correct_data`)
 
 Step 1 operates on a normalized view so that downstream clusters represent
 biology rather than technical variation. Step 3 is applied to the

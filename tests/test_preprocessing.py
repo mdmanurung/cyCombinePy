@@ -1,6 +1,6 @@
 import numpy as np
 
-from pycombine import transform_asinh
+from cycombinepy import transform_asinh
 
 
 def test_transform_asinh_roundtrip(synthetic_adata):

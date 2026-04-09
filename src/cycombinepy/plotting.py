@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
-from pycombine._utils import marker_matrix, resolve_markers
+from cycombinepy._utils import marker_matrix, resolve_markers
 
 
 def plot_density(
