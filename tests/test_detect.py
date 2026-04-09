@@ -2,7 +2,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-from pycombine.detect import detect_batch_effect_express
+from cycombinepy.detect import detect_batch_effect_express
 
 
 def test_detect_batch_effect_express_returns_figs(synthetic_adata, tmp_path):

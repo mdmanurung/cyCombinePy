@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for pycombine."""
+"""Shared pytest fixtures for cycombinepy."""
 
 from __future__ import annotations
 

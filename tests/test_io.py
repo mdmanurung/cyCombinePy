@@ -17,7 +17,7 @@ def test_read_fcs_dir_basic(tmp_path):
 
     shutil.copy(FCS_PATH, tmp_path / "sample1.fcs")
 
-    from pycombine.io import read_fcs_dir
+    from cycombinepy.io import read_fcs_dir
 
     adata = read_fcs_dir(tmp_path, transform=False)
     assert adata.n_obs > 0
@@ -37,7 +37,7 @@ def test_read_fcs_dir_with_metadata(tmp_path):
     meta = pd.DataFrame(
         {"filename": ["sample1.fcs"], "Batch": ["A"], "Patient": ["P1"]}
     )
-    from pycombine.io import read_fcs_dir
+    from cycombinepy.io import read_fcs_dir
 
     adata = read_fcs_dir(
         tmp_path, metadata=meta, batch_key="Batch", sample_key="Patient", transform=False

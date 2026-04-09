@@ -14,7 +14,7 @@ from anndata import AnnData
 from scipy.interpolate import PchipInterpolator
 from scipy.stats import rankdata
 
-from pycombine._utils import (
+from cycombinepy._utils import (
     check_obs_key,
     marker_matrix,
     resolve_markers,
@@ -127,7 +127,7 @@ def normalize(
     adata
         AnnData containing expression in ``adata.X`` (or a layer).
     markers
-        Var names to normalize. If ``None``, :func:`pycombine.get_markers` is used.
+        Var names to normalize. If ``None``, :func:`cycombinepy.get_markers` is used.
     method
         One of ``"scale"``, ``"rank"``, ``"CLR"``, ``"CLR_seu"``, ``"CLR_med"``,
         ``"qnorm"``, ``"none"``.

@@ -12,7 +12,7 @@ from typing import Iterable
 import numpy as np
 from anndata import AnnData
 
-from pycombine._utils import marker_matrix, resolve_markers
+from cycombinepy._utils import marker_matrix, resolve_markers
 
 
 def create_som(
@@ -38,7 +38,7 @@ def create_som(
     adata
         AnnData to cluster.
     markers
-        Var names used for clustering. Defaults to :func:`pycombine.get_markers`.
+        Var names used for clustering. Defaults to :func:`cycombinepy.get_markers`.
     xdim, ydim
         SOM grid dimensions. Default 8x8 matches cyCombine.
     n_clusters

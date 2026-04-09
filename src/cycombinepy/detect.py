@@ -15,8 +15,8 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
-from pycombine._utils import check_obs_key, marker_matrix, resolve_markers
-from pycombine.evaluate import compute_emd, compute_mad
+from cycombinepy._utils import check_obs_key, marker_matrix, resolve_markers
+from cycombinepy.evaluate import compute_emd, compute_mad
 
 
 def _ensure_single_cluster_label(adata: AnnData, key: str = "_cycombine_all") -> str:

@@ -1,4 +1,4 @@
-"""Sphinx configuration for the pycombine documentation site."""
+"""Sphinx configuration for the cycombinepy documentation site."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ from datetime import datetime
 # Make the package importable for autodoc when building from a clean checkout.
 sys.path.insert(0, os.path.abspath("../../src"))
 
-import pycombine  # noqa: E402
+import cycombinepy  # noqa: E402
 
-project = "pycombine"
-author = "pycombine contributors"
+project = "cycombinepy"
+author = "cycombinepy contributors"
 copyright = f"{datetime.now():%Y}, {author}"
-release = pycombine.__version__
+release = cycombinepy.__version__
 version = ".".join(release.split(".")[:2])
 
 extensions = [

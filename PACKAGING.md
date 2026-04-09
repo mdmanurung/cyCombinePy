@@ -1,6 +1,6 @@
 # Packaging and release
 
-pycombine is packaged with [hatchling](https://hatch.pypa.io/) and published to
+cycombinepy is packaged with [hatchling](https://hatch.pypa.io/) and published to
 PyPI via GitHub Actions using [PyPI trusted publishing](https://docs.pypi.org/trusted-publishers/)
 (OIDC, no long-lived API tokens).
 
@@ -14,12 +14,12 @@ twine check dist/*
 
 The build produces two artifacts in `dist/`:
 
-- `pycombine-<version>.tar.gz` — source distribution (includes `src/`, `tests/`,
+- `cycombinepy-<version>.tar.gz` — source distribution (includes `src/`, `tests/`,
   `README.md`, `LICENSE`, `CHANGELOG.md`)
-- `pycombine-<version>-py3-none-any.whl` — pure-Python wheel (includes only the
-  `pycombine` package and license metadata)
+- `cycombinepy-<version>-py3-none-any.whl` — pure-Python wheel (includes only the
+  `cycombinepy` package and license metadata)
 
-The version is single-sourced from `src/pycombine/__init__.py` via
+The version is single-sourced from `src/cycombinepy/__init__.py` via
 `[tool.hatch.version]`. Bump it there, not in `pyproject.toml`.
 
 ## One-time GitHub / PyPI setup
@@ -35,7 +35,7 @@ Fields:
 
 | Field | Value |
 |---|---|
-| PyPI Project Name | `pycombine` |
+| PyPI Project Name | `cycombinepy` |
 | Owner | `mdmanurung` |
 | Repository name | `cyCombinePy` |
 | Workflow name | `release.yml` |
@@ -56,7 +56,7 @@ blocks on manual approval before the real PyPI upload.
 ### Pre-flight
 
 1. Ensure `main` is green on CI.
-2. Bump the version in `src/pycombine/__init__.py` (e.g. `0.1.0.dev0` →
+2. Bump the version in `src/cycombinepy/__init__.py` (e.g. `0.1.0.dev0` →
    `0.1.0`).
 3. Update `CHANGELOG.md`: move items from `## [Unreleased]` into a new
    `## [<version>] - YYYY-MM-DD` section.
@@ -90,8 +90,8 @@ Verify install from TestPyPI:
 python -m venv /tmp/pcv && source /tmp/pcv/bin/activate
 pip install --index-url https://test.pypi.org/simple/ \
             --extra-index-url https://pypi.org/simple/ \
-            pycombine==<version>
-python -c "import pycombine; print(pycombine.__version__)"
+            cycombinepy==<version>
+python -c "import cycombinepy; print(cycombinepy.__version__)"
 ```
 
 ### Real release
@@ -122,8 +122,8 @@ pulled from `CHANGELOG.md`.
 
 - **`twine check` fails on long description**: the README must be valid
   CommonMark; run `python -m readme_renderer README.md` to inspect.
-- **`pycombine` name already taken on PyPI**: rename the project in
-  `pyproject.toml` (e.g. `pycombine-cyto`) and update the trusted publisher.
+- **`cycombinepy` name already taken on PyPI**: rename the project in
+  `pyproject.toml` (e.g. `cycombinepy-cyto`) and update the trusted publisher.
 - **OIDC publish fails with `not a trusted publisher`**: the workflow filename,
   environment name, or repo owner in the pending publisher does not match.
   Re-create the publisher with the exact values shown in the action log.

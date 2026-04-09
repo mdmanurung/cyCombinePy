@@ -2,7 +2,7 @@
 
 ## Requirements
 
-`pycombine` supports Python 3.10 and newer. The core pipeline depends on
+`cycombinepy` supports Python 3.10 and newer. The core pipeline depends on
 [`numpy`](https://numpy.org), [`pandas`](https://pandas.pydata.org),
 [`scipy`](https://scipy.org), [`scikit-learn`](https://scikit-learn.org),
 [`anndata`](https://anndata.readthedocs.io),
@@ -15,7 +15,7 @@ construction).
 ## Install from PyPI
 
 ```bash
-pip install pycombine
+pip install cycombinepy
 ```
 
 This pulls in the core dependencies. The following optional extras enable
@@ -23,15 +23,15 @@ additional features:
 
 | Extra         | Adds                                                                 |
 | ------------- | -------------------------------------------------------------------- |
-| `[io]`        | `pytometry` for reading raw FCS files via `pycombine.io.read_fcs_dir`|
-| `[plotting]`  | `matplotlib` + `seaborn` for the `pycombine.plotting` helpers        |
-| `[eval]`      | `scib-metrics` for `pycombine.evaluate.scib_metrics`                 |
+| `[io]`        | `pytometry` for reading raw FCS files via `cycombinepy.io.read_fcs_dir`|
+| `[plotting]`  | `matplotlib` + `seaborn` for the `cycombinepy.plotting` helpers        |
+| `[eval]`      | `scib-metrics` for `cycombinepy.evaluate.scib_metrics`                 |
 | `[all]`       | Everything above                                                     |
 
 Install with extras, e.g.:
 
 ```bash
-pip install "pycombine[all]"
+pip install "cycombinepy[all]"
 ```
 
 ## Install from source (development)
@@ -83,7 +83,7 @@ jupyter nbconvert --to notebook --execute --inplace \
 ## Verifying the installation
 
 ```python
-import pycombine as pc
+import cycombinepy as pc
 print(pc.__version__)
 
 # Functional smoke test: create a tiny AnnData and run the pipeline.

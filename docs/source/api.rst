@@ -2,10 +2,10 @@ API reference
 =============
 
 This page is generated from the docstrings of every public symbol in
-:mod:`pycombine`. Click through to each function for the full parameter
+:mod:`cycombinepy`. Click through to each function for the full parameter
 list, return type, and source link.
 
-.. currentmodule:: pycombine
+.. currentmodule:: cycombinepy
 
 Preprocessing
 -------------
@@ -71,7 +71,7 @@ Utilities
 I/O
 ---
 
-.. currentmodule:: pycombine.io
+.. currentmodule:: cycombinepy.io
 
 .. autosummary::
    :toctree: generated/
@@ -82,7 +82,7 @@ I/O
 Plotting
 --------
 
-.. currentmodule:: pycombine.plotting
+.. currentmodule:: cycombinepy.plotting
 
 .. autosummary::
    :toctree: generated/
@@ -95,7 +95,7 @@ Plotting
 Advanced evaluation
 -------------------
 
-.. currentmodule:: pycombine.evaluate
+.. currentmodule:: cycombinepy.evaluate
 
 .. autosummary::
    :toctree: generated/

@@ -1,6 +1,6 @@
 import numpy as np
 
-from pycombine import create_som
+from cycombinepy import create_som
 
 
 def test_create_som_writes_labels(synthetic_adata):

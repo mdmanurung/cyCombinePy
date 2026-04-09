@@ -2,7 +2,7 @@
 
 Port of ``correct_data`` in ``R/02_batch_correct.R:356-544``. The AnnData is split
 by its SOM cluster label, each sub-group is corrected with
-:func:`pycombine.combat.run_combat`, and results are stitched back in the original
+:func:`cycombinepy.combat.run_combat`, and results are stitched back in the original
 row order. Values are capped to the per-cluster min/max of the input (matching R
 lines 524-531).
 """
@@ -15,14 +15,14 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
-from pycombine._utils import (
+from cycombinepy._utils import (
     check_confound,
     check_obs_key,
     marker_matrix,
     resolve_markers,
     set_marker_matrix,
 )
-from pycombine.combat import run_combat
+from cycombinepy.combat import run_combat
 
 CORRECTED_LAYER = "cycombine_corrected"
 
@@ -95,7 +95,7 @@ def correct_data(
     label_key
         Column in ``adata.obs`` with the SOM cluster id (from :func:`create_som`).
     markers
-        Var names to correct. If ``None``, uses :func:`pycombine.get_markers`.
+        Var names to correct. If ``None``, uses :func:`cycombinepy.get_markers`.
     batch_key
         Column in ``adata.obs`` giving the batch assignment.
     covar, anchor

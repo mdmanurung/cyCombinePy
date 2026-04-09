@@ -1,4 +1,4 @@
-"""Internal utilities shared across pycombine modules."""
+"""Internal utilities shared across cycombinepy modules."""
 
 from __future__ import annotations
 

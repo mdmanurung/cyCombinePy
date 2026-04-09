@@ -2,7 +2,7 @@
 
 Port of ``.combat`` in ``R/02_batch_correct.R:548``. We keep the R convention:
 the input is a ``(n_features, n_samples)`` matrix so both the calling code in
-:mod:`pycombine.correct` and ``inmoose`` see the same shape.
+:mod:`cycombinepy.correct` and ``inmoose`` see the same shape.
 """
 
 from __future__ import annotations

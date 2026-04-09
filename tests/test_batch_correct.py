@@ -1,7 +1,7 @@
 import numpy as np
 
-from pycombine import batch_correct
-from pycombine.correct import CORRECTED_LAYER
+from cycombinepy import batch_correct
+from cycombinepy.correct import CORRECTED_LAYER
 
 
 def _gap(X, batch):

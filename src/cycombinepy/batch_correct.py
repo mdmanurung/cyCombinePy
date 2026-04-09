@@ -13,10 +13,10 @@ from typing import Iterable, Sequence
 import numpy as np
 from anndata import AnnData
 
-from pycombine._utils import marker_matrix, resolve_markers, set_marker_matrix
-from pycombine.cluster import create_som
-from pycombine.correct import CORRECTED_LAYER, correct_data
-from pycombine.normalize import NormMethod, TiesMethod, normalize
+from cycombinepy._utils import marker_matrix, resolve_markers, set_marker_matrix
+from cycombinepy.cluster import create_som
+from cycombinepy.correct import CORRECTED_LAYER, correct_data
+from cycombinepy.normalize import NormMethod, TiesMethod, normalize
 
 
 def _as_list(v) -> list:
@@ -53,7 +53,7 @@ def batch_correct(
         scale (e.g. post-asinh for cytometry).
     markers
         Var names to normalize/cluster/correct. Defaults to
-        :func:`pycombine.get_markers`.
+        :func:`cycombinepy.get_markers`.
     batch_key
         Column in ``adata.obs`` holding batch assignments.
     label_key
@@ -68,11 +68,11 @@ def batch_correct(
     n_clusters
         If set, metacluster the SOM nodes into this many clusters.
     norm_method
-        Normalization method used for clustering. See :func:`pycombine.normalize`.
+        Normalization method used for clustering. See :func:`cycombinepy.normalize`.
     ties_method
         Tie-breaking rule for ``norm_method="rank"``.
     covar, anchor, ref_batch, parametric
-        Forwarded to :func:`pycombine.correct_data`.
+        Forwarded to :func:`cycombinepy.correct_data`.
     out_layer
         Layer name to store the corrected matrix in.
     copy
