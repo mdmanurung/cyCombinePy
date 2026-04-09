@@ -1,14 +1,29 @@
-.Rproj.user
-.Rhistory
-.RData
-.Rprofile
-_data
-dev
-figs
-Meta
-renv
-tmp
-doc
-data-raw
+# macOS
 .DS_Store
-*Rproj
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+wheelhouse/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Editors
+.idea/
+.vscode/
+*.swp
