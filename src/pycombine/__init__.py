@@ -1,4 +1,4 @@
-"""pycombine: Python port of cyCombine for batch correction of cytometry data."""
+"""cyCombinePy: Python port of cyCombine for batch correction of cytometry data."""
 
 from pycombine._utils import check_confound, get_markers
 from pycombine.batch_correct import batch_correct
