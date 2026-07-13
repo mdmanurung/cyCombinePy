@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
+from cycombinepy._utils import resolve_markers
 from cycombinepy.preprocessing import transform_asinh
 
 
@@ -146,7 +147,7 @@ def read_fcs_dir(
 
     # Marker subset
     if markers is not None:
-        keep = [m for m in markers if m in adata.var_names]
+        keep = resolve_markers(adata, markers)
         adata = adata[:, keep].copy()
 
     # Downsample

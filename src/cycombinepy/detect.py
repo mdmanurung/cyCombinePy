@@ -15,7 +15,11 @@ import numpy as np
 import pandas as pd
 from anndata import AnnData
 
-from cycombinepy._utils import check_obs_key, marker_matrix, resolve_markers
+from cycombinepy._utils import (
+    check_obs_values_not_missing,
+    marker_matrix,
+    resolve_markers,
+)
 from cycombinepy.evaluate import compute_emd, compute_mad
 
 
@@ -43,6 +47,31 @@ def detect_batch_effect_express(
 
     Matches ``detect_batch_effect_express`` in ``R/detect_batch_effect.R``.
     """
+    check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="detect_batch_effect_express()",
+    )
+    if sample_key is not None and sample_key in adata.obs.columns:
+        check_obs_values_not_missing(
+            adata,
+            sample_key,
+            context="detect_batch_effect_express()",
+        )
+    markers = resolve_markers(adata, markers)
+
+    if downsample is not None and adata.n_obs > downsample:
+        rng = np.random.default_rng(seed)
+        idx = rng.choice(adata.n_obs, downsample, replace=False)
+        adata = adata[idx].copy()
+
+    X = marker_matrix(
+        adata,
+        markers,
+        require_finite=True,
+        context="detect_batch_effect_express()",
+    )
+
     try:
         import matplotlib.pyplot as plt
         import seaborn as sns
@@ -51,14 +80,6 @@ def detect_batch_effect_express(
             "Detection plots require matplotlib + seaborn; install with "
             "`pip install matplotlib seaborn`."
         ) from exc
-
-    check_obs_key(adata, batch_key)
-    markers = resolve_markers(adata, markers)
-
-    if downsample is not None and adata.n_obs > downsample:
-        rng = np.random.default_rng(seed)
-        idx = rng.choice(adata.n_obs, downsample, replace=False)
-        adata = adata[idx].copy()
 
     cluster_key = _ensure_single_cluster_label(adata)
     emd_df = compute_emd(
@@ -72,7 +93,6 @@ def detect_batch_effect_express(
     ax_emd.set_title("Mean EMD per marker (between batches)")
 
     # 2. Density plots per marker, colored by batch
-    X = marker_matrix(adata, markers)
     long = pd.DataFrame(X, columns=markers)
     long[batch_key] = adata.obs[batch_key].values
     long = long.melt(id_vars=[batch_key], var_name="marker", value_name="value")
@@ -92,7 +112,12 @@ def detect_batch_effect_express(
 
         from sklearn.manifold import MDS
 
-        mds = MDS(n_components=2, random_state=seed, normalized_stress="auto")
+        mds = MDS(
+            n_components=2,
+            random_state=seed,
+            normalized_stress="auto",
+            init="random",
+        )
         coords = mds.fit_transform(medians.values)
         for b in sample_batch.unique():
             mask = (sample_batch == b).values
@@ -126,6 +151,25 @@ def detect_batch_effect(
 
     Matches ``detect_batch_effect`` in ``R/detect_batch_effect.R``.
     """
+    check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="detect_batch_effect()",
+    )
+    if sample_key is not None and sample_key in adata.obs.columns:
+        check_obs_values_not_missing(
+            adata,
+            sample_key,
+            context="detect_batch_effect()",
+        )
+    markers = resolve_markers(adata, markers)
+    marker_matrix(
+        adata,
+        markers,
+        require_finite=True,
+        context="detect_batch_effect()",
+    )
+
     try:
         import matplotlib.pyplot as plt
         import scanpy as sc

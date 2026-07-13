@@ -7,7 +7,7 @@ name = "cycombinepy"
 dynamic = ["version"]
 description = "Python port of cyCombine: batch correction of single-cell cytometry data"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
@@ -38,7 +38,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Typing :: Typed",
@@ -82,6 +81,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/mdmanurung/cyCombinePy"
+Documentation = "https://mdmanurung.github.io/cyCombinePy/"
 Repository = "https://github.com/mdmanurung/cyCombinePy"
 Issues = "https://github.com/mdmanurung/cyCombinePy/issues"
 Changelog = "https://github.com/mdmanurung/cyCombinePy/blob/main/CHANGELOG.md"
@@ -97,6 +97,8 @@ packages = ["src/cycombinepy"]
 include = [
     "src/cycombinepy",
     "tests",
+    "scripts",
+    "CITATION.cff",
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
@@ -110,8 +112,18 @@ exclude = [
     ".github/**",
 ]
 
+[tool.hatch.build.targets.sdist.force-include]
+"inst/extdata/test.fcs" = "inst/extdata/test.fcs"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "requires_flowsom: tests requiring FlowSOM",
+    "requires_inmoose: tests requiring inmoose",
+    "parity: tests comparing against external R cyCombine golden outputs",
+    "slow: slower integration tests",
+    "docs_notebook: executable notebook checks",
+]
 filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::PendingDeprecationWarning",

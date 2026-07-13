@@ -15,7 +15,7 @@ from scipy.interpolate import PchipInterpolator
 from scipy.stats import rankdata
 
 from cycombinepy._utils import (
-    check_obs_key,
+    check_obs_values_not_missing,
     marker_matrix,
     resolve_markers,
     set_marker_matrix,
@@ -181,13 +181,23 @@ def normalize(
     if method == "none":
         return adata.copy() if copy else None
 
-    check_obs_key(adata, batch_key)
+    batch_values = check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="normalize()",
+    )
     markers = resolve_markers(adata, markers)
     if copy:
         adata = adata.copy()
 
-    X = marker_matrix(adata, markers, layer=layer)
-    batches = np.asarray(adata.obs[batch_key].values)
+    X = marker_matrix(
+        adata,
+        markers,
+        layer=layer,
+        require_finite=True,
+        context="normalize()",
+    )
+    batches = np.asarray(batch_values.values)
 
     if method == "qnorm":
         new_X = _quantile_norm(X, batches)

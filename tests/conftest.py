@@ -8,6 +8,29 @@ import pandas as pd
 import pytest
 
 
+def make_normalization_exact_adata() -> ad.AnnData:
+    X = np.array(
+        [
+            [1.0, 0.0],
+            [1.0, 2.0],
+            [3.0, 4.0],
+            [10.0, 1.0],
+            [10.0, 1.0],
+            [20.0, 5.0],
+        ]
+    )
+    obs = pd.DataFrame({"batch": ["a", "a", "a", "b", "b", "b"]})
+    obs.index = obs.index.astype(str)
+    out = ad.AnnData(X=X, obs=obs)
+    out.var_names = ["CD0", "CD1"]
+    return out
+
+
+@pytest.fixture
+def normalization_exact_adata() -> ad.AnnData:
+    return make_normalization_exact_adata()
+
+
 @pytest.fixture
 def synthetic_adata() -> ad.AnnData:
     """A tiny 2-batch cytometry-like AnnData with a planted batch shift.

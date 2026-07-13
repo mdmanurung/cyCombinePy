@@ -13,7 +13,6 @@ on:
         type: choice
         options:
           - testpypi
-          - pypi
 
 concurrency:
   group: release-${{ github.ref }}
@@ -47,10 +46,137 @@ jobs:
         with:
           name: dist
           path: dist/
+          retention-days: 7
+
+  smoke-wheel:
+    name: Smoke wheel (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install wheel and run functional smoke
+        run: |
+          python -m venv .venv-smoke
+          . .venv-smoke/bin/activate
+          python -m pip install --upgrade pip
+          WHEEL=$(python - <<'PY'
+          from pathlib import Path
+          wheels = sorted(Path("dist").glob("*.whl"))
+          if len(wheels) != 1:
+              raise SystemExit(f"expected exactly one wheel, found {len(wheels)}")
+          print(wheels[0])
+          PY
+          )
+          pip install "$WHEEL"
+          python - <<'PY'
+          import anndata as ad
+          import numpy as np
+          import pandas as pd
+
+          import cycombinepy
+          from cycombinepy import normalize
+
+          X = np.array([[1.0, 2.0], [2.0, 4.0], [10.0, 20.0], [12.0, 24.0]])
+          obs = pd.DataFrame({"batch": ["a", "a", "b", "b"]}, index=[f"c{i}" for i in range(4)])
+          adata = ad.AnnData(X=X, obs=obs)
+          adata.var_names = ["CD3", "CD4"]
+          normalize(adata, method="scale", markers=["CD3", "CD4"])
+          assert np.isfinite(adata.X).all()
+          print("cycombinepy", cycombinepy.__version__)
+          PY
+
+  smoke-sdist:
+    name: Smoke sdist
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install sdist with dev extras and run tests
+        run: |
+          python -m pip install --upgrade pip
+          SDIST=$(python - <<'PY'
+          from pathlib import Path
+          sdists = sorted(Path("dist").glob("*.tar.gz"))
+          if len(sdists) != 1:
+              raise SystemExit(f"expected exactly one sdist, found {len(sdists)}")
+          print(sdists[0])
+          PY
+          )
+          mkdir sdist-smoke
+          tar -xzf "$SDIST" -C sdist-smoke --strip-components=1
+          cd sdist-smoke
+          pip install ".[dev]"
+          pytest -q -rs
+
+  smoke-extras:
+    name: Smoke wheel extras
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install wheel with all extras and import optional dependencies
+        run: |
+          python -m venv .venv-extras
+          . .venv-extras/bin/activate
+          python -m pip install --upgrade pip
+          WHEEL=$(python - <<'PY'
+          from pathlib import Path
+          wheels = sorted(Path("dist").glob("*.whl"))
+          if len(wheels) != 1:
+              raise SystemExit(f"expected exactly one wheel, found {len(wheels)}")
+          print(wheels[0])
+          PY
+          )
+          pip install "${WHEEL}[all]"
+          python - <<'PY'
+          import flowsom
+          import inmoose
+          import matplotlib
+          import pytometry
+          import readfcs
+          import scib_metrics
+          import seaborn
+
+          print("extras ok")
+          PY
 
   publish-testpypi:
     name: Publish to TestPyPI
-    needs: build
+    needs: [build, smoke-wheel, smoke-sdist, smoke-extras]
     runs-on: ubuntu-latest
     # Publish to TestPyPI on every tag or explicit workflow_dispatch.
     if: >
@@ -76,10 +202,10 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    needs: build
+    needs: [build, smoke-wheel, smoke-sdist, smoke-extras]
     runs-on: ubuntu-latest
     # Only publish to real PyPI on tag pushes, not manual dispatches.
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
       url: https://pypi.org/p/cycombinepy

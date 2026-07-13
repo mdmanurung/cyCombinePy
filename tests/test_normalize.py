@@ -30,6 +30,12 @@ def test_normalize_none_is_noop(synthetic_adata):
     np.testing.assert_array_equal(synthetic_adata.X, before)
 
 
+def test_normalize_none_does_not_require_batch_key(synthetic_adata):
+    before = synthetic_adata.X.copy()
+    normalize(synthetic_adata, method="none", batch_key="missing_batch")
+    np.testing.assert_array_equal(synthetic_adata.X, before)
+
+
 def test_normalize_qnorm_runs(synthetic_adata):
     normalize(synthetic_adata, method="qnorm")
     assert np.all(np.isfinite(synthetic_adata.X))

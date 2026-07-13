@@ -3,7 +3,7 @@
 from cycombinepy._utils import check_confound, get_markers
 from cycombinepy.batch_correct import batch_correct
 from cycombinepy.cluster import create_som
-from cycombinepy.correct import correct_data
+from cycombinepy.correct import CombatCorrectionError, ConfoundedDesignError, correct_data
 from cycombinepy.detect import detect_batch_effect, detect_batch_effect_express
 from cycombinepy.evaluate import (
     compute_emd,
@@ -14,14 +14,16 @@ from cycombinepy.evaluate import (
 from cycombinepy.normalize import normalize
 from cycombinepy.preprocessing import transform_asinh
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "__version__",
     "batch_correct",
     "check_confound",
+    "CombatCorrectionError",
     "compute_emd",
     "compute_mad",
+    "ConfoundedDesignError",
     "correct_data",
     "create_som",
     "detect_batch_effect",

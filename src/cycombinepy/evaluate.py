@@ -15,7 +15,11 @@ import pandas as pd
 from anndata import AnnData
 from scipy.stats import wasserstein_distance
 
-from cycombinepy._utils import check_obs_key, marker_matrix, resolve_markers
+from cycombinepy._utils import (
+    check_obs_values_not_missing,
+    marker_matrix,
+    resolve_markers,
+)
 
 
 def compute_emd(
@@ -32,12 +36,26 @@ def compute_emd(
     the 1-D EMD that cyCombine computes via ``emdist::emd2d`` on single-column
     matrices.
     """
-    check_obs_key(adata, cell_key)
-    check_obs_key(adata, batch_key)
+    label_values = check_obs_values_not_missing(
+        adata,
+        cell_key,
+        context="compute_emd()",
+    )
+    batch_values = check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="compute_emd()",
+    )
     markers = resolve_markers(adata, markers)
-    X = marker_matrix(adata, markers, layer=layer)
-    labels = adata.obs[cell_key].astype(str).to_numpy()
-    batches = adata.obs[batch_key].astype(str).to_numpy()
+    X = marker_matrix(
+        adata,
+        markers,
+        layer=layer,
+        require_finite=True,
+        context="compute_emd()",
+    )
+    labels = label_values.astype(str).to_numpy()
+    batches = batch_values.astype(str).to_numpy()
 
     # Two passes: first count, then fill preallocated arrays. This avoids the
     # list-of-dicts intermediate and the per-row DataFrame construction cost.
@@ -112,12 +130,26 @@ def compute_mad(
     Mirrors ``compute_mad`` in ``R/evaluate_performance.R``: MAD is the median
     of ``|x - median(x)|`` within each (cluster, batch) block.
     """
-    check_obs_key(adata, cell_key)
-    check_obs_key(adata, batch_key)
+    label_values = check_obs_values_not_missing(
+        adata,
+        cell_key,
+        context="compute_mad()",
+    )
+    batch_values = check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="compute_mad()",
+    )
     markers = resolve_markers(adata, markers)
-    X = marker_matrix(adata, markers, layer=layer)
-    labels = adata.obs[cell_key].astype(str).to_numpy()
-    batches = adata.obs[batch_key].astype(str).to_numpy()
+    X = marker_matrix(
+        adata,
+        markers,
+        layer=layer,
+        require_finite=True,
+        context="compute_mad()",
+    )
+    labels = label_values.astype(str).to_numpy()
+    batches = batch_values.astype(str).to_numpy()
 
     n_markers = len(markers)
     uniq_labels = np.unique(labels)
@@ -191,6 +223,28 @@ def scib_metrics(
     Returns a dict of scalar scores. Metrics that require a biological label are
     skipped if ``label_key`` is ``None``.
     """
+    batch_values = check_obs_values_not_missing(
+        adata,
+        batch_key,
+        context="scib_metrics()",
+    )
+    if label_key is not None:
+        label_values = check_obs_values_not_missing(
+            adata,
+            label_key,
+            context="scib_metrics()",
+        )
+    else:
+        label_values = None
+    markers = list(adata.var_names)
+    X = marker_matrix(
+        adata,
+        markers,
+        layer=layer,
+        require_finite=True,
+        context="scib_metrics()",
+    )
+
     try:
         from scib_metrics import (  # type: ignore
             graph_connectivity,
@@ -207,19 +261,18 @@ def scib_metrics(
     import scanpy as sc
 
     a = adata.copy()
-    if layer is not None:
-        a.X = a.layers[layer]
+    a.X = X
 
     sc.pp.pca(a, n_comps=min(20, a.n_vars - 1))
     X_emb = a.obsm[embedding_key]
-    batches = a.obs[batch_key].to_numpy()
+    batches = batch_values.to_numpy()
 
     knn = pynndescent(X_emb, n_neighbors=30, random_state=0)
     scores: dict = {}
     scores["graph_connectivity"] = float(graph_connectivity(knn, batches))
     scores["ilisi"] = float(ilisi_knn(knn, batches))
     if label_key is not None:
-        labels = a.obs[label_key].to_numpy()
+        labels = label_values.to_numpy()
         scores["silhouette_batch"] = float(
             silhouette_batch(X_emb, labels, batches)
         )

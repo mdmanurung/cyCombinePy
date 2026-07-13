@@ -28,6 +28,48 @@ DEFAULT_NON_MARKERS: tuple[str, ...] = (
     "cell",
     "cell_id",
 )
+MAX_MISSING_OBS_INDICES = 5
+
+
+def check_var_names_unique(adata: AnnData) -> None:
+    """Raise if ``adata.var_names`` contains duplicate marker names."""
+    if adata.var_names.is_unique:
+        return
+    duplicates = adata.var_names[adata.var_names.duplicated()].unique().tolist()
+    raise ValueError(f"adata.var_names must be unique; duplicate names: {duplicates}")
+
+
+def check_layer_key(
+    adata: AnnData,
+    layer: str | None,
+    location: str = "adata.layers",
+) -> None:
+    """Raise if ``layer`` is not present in ``adata.layers``."""
+    if layer is None:
+        return
+    if layer not in adata.layers:
+        raise KeyError(f"Layer {layer!r} was not found in {location}")
+
+
+def check_obs_values_not_missing(
+    adata: AnnData,
+    key: str,
+    *,
+    context: str,
+) -> pd.Series:
+    """Return ``adata.obs[key]`` after rejecting actual pandas missing values."""
+    check_obs_key(adata, key)
+    values = adata.obs[key]
+    missing = values.isna()
+    if missing.any():
+        n_missing = int(missing.sum())
+        missing_rows = values.index[missing][:MAX_MISSING_OBS_INDICES].tolist()
+        raise ValueError(
+            f"{context} requires non-missing values in adata.obs[{key!r}]; "
+            f"found {n_missing} missing value(s); "
+            f"first missing rows: {missing_rows}"
+        )
+    return values
 
 
 def get_markers(
@@ -50,6 +92,7 @@ def resolve_markers(
     markers: Iterable[str] | None,
 ) -> list[str]:
     """Normalize a user-supplied ``markers`` argument to a list of var_names."""
+    check_var_names_unique(adata)
     if markers is None:
         return get_markers(adata)
     markers = list(markers)
@@ -74,6 +117,7 @@ def as_dense(x) -> np.ndarray:
 
 def _marker_indices(adata: AnnData, markers: list[str]) -> np.ndarray:
     """Resolve marker names to an integer column index array."""
+    check_var_names_unique(adata)
     get_loc = adata.var_names.get_loc
     return np.fromiter((get_loc(m) for m in markers), dtype=np.intp, count=len(markers))
 
@@ -83,6 +127,8 @@ def marker_matrix(
     markers: list[str],
     layer: str | None = None,
     dtype=float,
+    require_finite: bool = False,
+    context: str = "marker_matrix()",
 ) -> np.ndarray:
     """Extract a (n_cells, n_markers) dense array for the given markers.
 
@@ -92,8 +138,13 @@ def marker_matrix(
         Target dtype. Defaults to ``float`` (float64) for backwards
         compatibility. Pass ``None`` to preserve the source dtype, which avoids
         an unnecessary upcast when the source is already float32/float64.
+    require_finite
+        If true, reject NaN or infinite values after dtype conversion.
+    context
+        Operation name included in finite-value validation errors.
     """
     idx = _marker_indices(adata, markers)
+    check_layer_key(adata, layer)
     X = adata.X if layer is None else adata.layers[layer]
     # Fancy indexing always returns a fresh copy, so no extra .copy() is needed.
     if hasattr(X, "toarray"):
@@ -103,6 +154,13 @@ def marker_matrix(
         sub = np.asarray(X)[:, idx]
     if dtype is not None and sub.dtype != np.dtype(dtype):
         sub = sub.astype(dtype, copy=False)
+    if require_finite:
+        try:
+            finite = np.isfinite(sub)
+        except TypeError as exc:
+            raise ValueError(f"{context} requires finite marker values") from exc
+        if not np.all(finite):
+            raise ValueError(f"{context} requires finite marker values")
     return sub
 
 

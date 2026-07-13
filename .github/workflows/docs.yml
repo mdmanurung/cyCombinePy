@@ -2,7 +2,7 @@ name: Deploy documentation to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   workflow_dispatch:
 
 permissions:
@@ -26,14 +26,22 @@ jobs:
           cache: pip
 
       - name: Install package with docs dependencies
-        run: pip install -e ".[docs]"
+        run: pip install -e ".[docs]" pytest
+
+      - name: Run documentation tests
+        run: |
+          PYTHONPATH=src pytest \
+            tests/test_docs_snippets.py \
+            tests/test_readme_snippets.py \
+            tests/test_public_api.py \
+            tests/test_vignettes.py \
+            -q
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
       - name: Build Sphinx documentation
-        run: make html
-        working-directory: docs
+        run: sphinx-build -W -b html docs/source docs/build/html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

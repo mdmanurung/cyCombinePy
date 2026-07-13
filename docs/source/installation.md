@@ -2,7 +2,7 @@
 
 ## Requirements
 
-`cycombinepy` supports Python 3.10 and newer. The core pipeline depends on
+`cycombinepy` supports Python 3.10, 3.11, and 3.12. The core pipeline depends on
 [`numpy`](https://numpy.org), [`pandas`](https://pandas.pydata.org),
 [`scipy`](https://scipy.org), [`scikit-learn`](https://scikit-learn.org),
 [`anndata`](https://anndata.readthedocs.io),
@@ -70,9 +70,13 @@ browser, or serve it locally with:
 python -m http.server -d docs/build/html 8000
 ```
 
-The tutorial notebooks under `docs/source/notebooks/` are committed with
-their cell outputs, so rebuilding the docs does **not** require re-running
-them. To refresh the executed outputs:
+The public documentation is deployed to GitHub Pages at
+<https://mdmanurung.github.io/cyCombinePy/>. The deployment workflow builds
+this Sphinx source tree on pushes to `master` or `main`.
+
+The tutorial notebooks under `docs/source/notebooks/` are source-only in
+documentation builds. Deterministic documentation snippets are tested in CI.
+To refresh notebook outputs locally:
 
 ```bash
 jupyter nbconvert --to notebook --execute --inplace \

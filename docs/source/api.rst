@@ -35,6 +35,23 @@ Correction
 
    batch_correct
    correct_data
+   CombatCorrectionError
+   ConfoundedDesignError
+
+Correction reports and constants
+--------------------------------
+
+.. currentmodule:: cycombinepy.correct
+
+.. autosummary::
+   :toctree: generated/
+   :nosignatures:
+
+   CORRECTED_LAYER
+   CORRECTION_REPORT_UNS_KEY
+   CORRECTION_REPORT_SCHEMA_VERSION
+
+.. currentmodule:: cycombinepy
 
 Evaluation
 ----------

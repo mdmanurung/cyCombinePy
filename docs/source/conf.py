@@ -48,9 +48,9 @@ napoleon_numpy_docstring = True
 napoleon_google_docstring = False
 
 # -- MyST-NB ---------------------------------------------------------------
-# Notebooks are pre-executed; don't re-run them during the Sphinx build
-# (the canonical execution path is `jupyter nbconvert --execute --inplace`,
-# which is what we ship in CI / docs rebuild scripts).
+# Tutorial notebooks are rendered source-only in docs builds. They include
+# interactive paths for downloading external FCS files and running optional
+# tutorial dependencies; CI exercises deterministic docs snippets separately.
 nb_execution_mode = "off"
 myst_enable_extensions = [
     "colon_fence",
@@ -72,7 +72,7 @@ intersphinx_mapping = {
 
 # -- HTML output -----------------------------------------------------------
 html_theme = "furo"
-html_title = f"cyCombinePy {version}"
+html_title = f"cyCombinePy {release}"
 html_static_path = ["_static"]
 html_theme_options = {
     "source_repository": "https://github.com/mdmanurung/cyCombinePy",

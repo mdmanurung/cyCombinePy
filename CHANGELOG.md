@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.1] — 2026-04-09
+## [0.1.2] - 2026-07-12
+
+### Added
+- Added `CITATION.cff` and citation documentation for citing cyCombinePy and
+  the original cyCombine method paper.
+- Added shared input validation for marker names, layers, finite marker
+  matrices, and missing observation metadata across normalization, correction,
+  evaluation, detection, and FCS I/O entry points.
+- Added H5AD-safe correction reports, strict correction/confounding policies,
+  and propagated report aggregation through `batch_correct`.
+- Added deterministic exact-value tests, scientific/reproducibility checks,
+  optional FlowSOM/inmoose integration guards, and an R-parity golden-test
+  harness with a fixture-generation script.
+- Added packaging, docs, CI, release, wheel, sdist, and optional-extras smoke
+  checks for publication readiness.
+
+### Changed
+- Clarified README and docs scope/provenance wording for the AnnData workflow
+  implemented by cyCombinePy.
+- Tightened supported Python metadata to Python 3.10-3.12 and added the
+  `py.typed` marker to the wheel.
+- Stripped notebook execution outputs and documented notebooks as source-only
+  examples.
+
+## [0.1.1] - 2026-04-09
 
 ### Changed
 - Version bump to 0.1.1; first release to PyPI and TestPyPI.

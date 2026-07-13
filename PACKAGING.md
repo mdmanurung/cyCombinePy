@@ -4,6 +4,8 @@ cycombinepy is packaged with [hatchling](https://hatch.pypa.io/) and published t
 PyPI via GitHub Actions using [PyPI trusted publishing](https://docs.pypi.org/trusted-publishers/)
 (OIDC, no long-lived API tokens).
 
+Published artifacts support Python 3.10, 3.11, and 3.12.
+
 ## Local build
 
 ```bash
@@ -14,13 +16,32 @@ twine check dist/*
 
 The build produces two artifacts in `dist/`:
 
-- `cycombinepy-<version>.tar.gz` — source distribution (includes `src/`, `tests/`,
-  `README.md`, `LICENSE`, `CHANGELOG.md`)
+- `cycombinepy-<version>.tar.gz` — source distribution (includes `src/`, `tests/`, `scripts/`,
+  `inst/extdata/test.fcs`, `CITATION.cff`, `README.md`, `LICENSE`, `CHANGELOG.md`)
 - `cycombinepy-<version>-py3-none-any.whl` — pure-Python wheel (includes only the
-  `cycombinepy` package and license metadata)
+  `cycombinepy` package, the `cycombinepy/py.typed` marker, and license metadata)
+
+Artifact checks should confirm that the wheel contains `cycombinepy/py.typed`
+and that the sdist contains both `inst/extdata/test.fcs` and `CITATION.cff`.
 
 The version is single-sourced from `src/cycombinepy/__init__.py` via
 `[tool.hatch.version]`. Bump it there, not in `pyproject.toml`.
+
+## Publication gates
+
+Publication readiness is covered across the CI, release, and docs workflows:
+
+- editable-install tests on Python 3.10, 3.11, and 3.12
+- `python -m build` for the source distribution and wheel
+- `twine check dist/*`
+- wheel install smoke tests on Python 3.10, 3.11, and 3.12
+- sdist install with `.[dev]` followed by `pytest -q -rs` on Python 3.12
+- wheel install with `[all]` extras and optional dependency imports on Python 3.12
+- documentation snippet tests and `sphinx-build -W` in the docs workflow
+
+The sdist smoke intentionally runs the full test suite from the unpacked source
+archive. That gate can be slower than the wheel smoke because it exercises the
+release artifact as an install-and-test source tree.
 
 ## One-time GitHub / PyPI setup
 
@@ -60,7 +81,9 @@ blocks on manual approval before the real PyPI upload.
    `0.1.0`).
 3. Update `CHANGELOG.md`: move items from `## [Unreleased]` into a new
    `## [<version>] - YYYY-MM-DD` section.
-4. Commit: `git commit -am "Release v<version>"`.
+4. Check that `CITATION.cff` has the released version/date and is included in
+   the sdist.
+5. Commit: `git commit -am "Release v<version>"`.
 
 ### Dry run on TestPyPI
 
@@ -72,7 +95,8 @@ Two options:
 GitHub → Actions → Release → Run workflow → target: testpypi
 ```
 
-Workflow builds + uploads to TestPyPI only.
+Workflow builds the release artifacts, runs the artifact smoke gates, and uploads
+to TestPyPI only. Manual dispatch cannot publish to real PyPI.
 
 **Option B — pre-release tag:**
 
@@ -105,8 +129,9 @@ The `release.yml` workflow:
 
 1. Builds sdist + wheel
 2. Runs `twine check`
-3. Publishes to TestPyPI
-4. Publishes to PyPI (gated by the `pypi` environment if you added a protection
+3. Runs wheel, sdist, and extras smoke gates
+4. Publishes to TestPyPI
+5. Publishes to PyPI (gated by the `pypi` environment if you added a protection
    rule)
 
 After the workflow finishes, create a GitHub Release from the tag with notes
@@ -115,7 +140,7 @@ pulled from `CHANGELOG.md`.
 ### Post-release
 
 1. Bump `__version__` on `main` back to the next dev version (e.g.
-   `0.1.1.dev0`).
+   `0.1.3.dev0` after releasing `0.1.2`).
 2. Commit and push.
 
 ## Troubleshooting

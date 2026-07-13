@@ -21,11 +21,17 @@ two tutorial notebooks:
 | `adata.obs["anchor"]`                        | reference sample carried across batches     |
 | `adata.obs["cycombine_som"]`                 | SOM cluster labels (set by `create_som`)    |
 | `adata.layers["cycombine_corrected"]`        | corrected expression (set by `correct_data`)|
+| `adata.uns["cycombinepy_correction"]`        | H5AD-safe correction report                 |
 
 All functions read from `adata.X` by default; pass `layer=...` to read or
 write a named layer instead. Columns other than `batch` are optional but
 enable additional features (covariate-aware correction, anchor-based
 alignment, diagnostic MDS plots, etc.).
+
+Input validation is deliberately early. Public numerical entry points reject
+missing required metadata, non-unique marker names, missing requested layers,
+missing requested markers, and non-finite marker matrices before running
+normalization, correction, evaluation, or plotting.
 
 ## The pipeline in one call
 
@@ -36,7 +42,7 @@ full pipeline in one call:
 import cycombinepy as pc
 from cycombinepy.correct import CORRECTED_LAYER
 
-pc.batch_correct(
+report = pc.batch_correct(
     adata,
     batch_key="batch",
     xdim=8, ydim=8,         # 64-node SOM
@@ -44,21 +50,39 @@ pc.batch_correct(
     norm_method="scale",    # batch-wise z-score before clustering
     covar="condition",      # optional: preserve a biological covariate
     seed=473,
+    error_policy="raise",
+    confound_policy="raise",
+    return_report=True,
 )
 
 # The corrected matrix is now in adata.layers["cycombine_corrected"]
-# (constant CORRECTED_LAYER). adata.X is unchanged.
+# (constant CORRECTED_LAYER). adata.X is unchanged, and the same report
+# is stored in adata.uns["cycombinepy_correction"].
 ```
 
 Under the hood this is equivalent to running three steps by hand:
 
 ```python
-pc.normalize(adata, method="scale", batch_key="batch")
-pc.create_som(adata, xdim=8, ydim=8, rlen=10, seed=473,
-              label_key="cycombine_som")
-# Restore the unnormalized view before per-cluster correction.
-pc.correct_data(adata, label_key="cycombine_som",
-                batch_key="batch", covar="condition")
+from cycombinepy.correct import CORRECTED_LAYER
+
+adata.layers["cycombine_normalized"] = adata.X.copy()
+pc.normalize(adata, method="scale", batch_key="batch", layer="cycombine_normalized")
+pc.create_som(
+    adata,
+    xdim=8,
+    ydim=8,
+    layer="cycombine_normalized",
+    label_key="cycombine_som",
+)
+pc.correct_data(
+    adata,
+    label_key="cycombine_som",
+    batch_key="batch",
+    covar="condition",
+    layer=None,
+    out_layer=CORRECTED_LAYER,
+    return_report=True,
+)
 ```
 
 Use the modular form when you want to swap components (e.g. try
@@ -126,6 +150,10 @@ pc.transform_asinh(adata, cofactor=5, derand=True)
 pc.normalize(adata, method="scale", batch_key="batch")
 ```
 
+`normalize(adata)` mutates `adata.X` unless `layer=` or `copy=True` is used.
+For the modular correction workflow, normalize into a layer so `adata.X`
+remains the unnormalized correction input.
+
 Available methods:
 
 | Method      | Notes                                                              |
@@ -162,14 +190,27 @@ pc.correct_data(
     anchor="reference_id",  # optional
     ref_batch=None,
     parametric=True,
+    error_policy="raise",
+    confound_policy="raise",
+    return_report=True,
 )
 ```
 
 Runs [ComBat](https://github.com/epigenelabs/inmoose) inside each SOM
 cluster in isolation, capping the corrected values to the per-cluster
-min/max of the input (matching R `cyCombine` lines 524–531). If a
-cluster contains cells from only one batch — or if the covariate design
-is confounded with the batch variable — the cluster is left unchanged.
+min/max of the input (matching R `cyCombine` lines 524–531). Clusters
+with cells from only one batch are skipped and left unchanged. True
+confounded covariate or anchor designs raise `ConfoundedDesignError` by
+default; low-support or skewed terms are dropped and audited in the
+correction report. Use `confound_policy="skip"` to leave affected
+confounded clusters unchanged, or `confound_policy="drop"` to preserve
+the legacy drop-and-audit behavior.
+
+ComBat failures raise `CombatCorrectionError` by default and do not write a
+mixed corrected/uncorrected output layer. Use `error_policy="report"` to leave
+failed clusters unchanged and record the failure, or `error_policy="warn"` to
+also emit a warning. With `return_report=True`, `correct_data` returns the same
+report that it stores under `adata.uns["cycombinepy_correction"]`.
 
 ## Evaluating a correction
 
