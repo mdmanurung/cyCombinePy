@@ -28,6 +28,9 @@ env/
 .vscode/
 *.swp
 
+# Local workspace notes
+.local/
+
 # Sphinx documentation build artifacts
 docs/build/
 docs/source/generated/
