@@ -188,8 +188,8 @@ pip install -e ".[all,dev]"
 ## Claude Code skill
 
 cyCombinePy ships an [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills)
-for [Claude Code](https://claude.com/claude-code). The skill teaches the agent
-the package conventions: AnnData layout, arcsinh transformation, FlowSOM
+for [Claude Code](https://claude.com/claude-code). The skill records the
+package conventions: AnnData layout, arcsinh transformation, FlowSOM
 clustering, per-cluster ComBat correction, strict correction reports, and
 EMD/MAD evaluation.
 
@@ -209,10 +209,10 @@ cyCombinePy to refresh the installed copy:
 cycombinepy-install-skills --agent claude --force
 ```
 
-Once installed, ask Claude Code to work on cyCombinePy tasks such as "set up an
-AnnData object for batch correction", "run FlowSOM and per-cluster ComBat", or
-"evaluate correction with EMD and MAD". The skill is a small router
-(`SKILL.md`) that points to reference workflows loaded only when needed.
+After installation, Claude Code can use the skill for cyCombinePy tasks such as
+"set up an AnnData object for batch correction", "run FlowSOM and per-cluster
+ComBat", or "evaluate correction with EMD and MAD". The installed `SKILL.md`
+points to reference workflows that are loaded only when needed.
 
 If you would rather not copy files into your home directory, point Claude Code
 at the bundled copy in place instead:

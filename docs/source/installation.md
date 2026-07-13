@@ -112,8 +112,8 @@ working.
 
 ## Installing the agent skill
 
-cyCombinePy bundles a Claude Code/Codex skill inside the installed package. It
-is copied into personal agent skill directories with:
+cyCombinePy bundles a Claude Code/Codex skill inside the installed package.
+Copy it into the default personal skill directories with:
 
 ```bash
 cycombinepy-install-skills
@@ -128,5 +128,5 @@ cycombinepy-install-skills --agent codex
 ```
 
 Use `--force` after upgrading cyCombinePy to refresh an existing copy. Use
-`--print-path` to print the bundled skill directory when you want to point an
-agent at the package copy directly.
+`--print-path` to print the bundled skill directory when a tool should load the
+package copy directly.
