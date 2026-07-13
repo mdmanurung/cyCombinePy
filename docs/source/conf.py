@@ -48,9 +48,9 @@ napoleon_numpy_docstring = True
 napoleon_google_docstring = False
 
 # -- MyST-NB ---------------------------------------------------------------
-# Tutorial notebooks are rendered source-only in docs builds. They include
-# interactive paths for downloading external FCS files and running optional
-# tutorial dependencies; CI exercises deterministic docs snippets separately.
+# Tutorial notebooks are not executed in docs builds. Most render as source-only,
+# while selected executed benchmarks store outputs directly in the notebook.
+# CI exercises deterministic docs snippets separately.
 nb_execution_mode = "off"
 myst_enable_extensions = [
     "colon_fence",

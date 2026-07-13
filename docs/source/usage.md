@@ -2,10 +2,12 @@
 
 This page describes the `cycombinepy` data model and correction workflow. For
 complete runnable examples, see the
-two tutorial notebooks:
+tutorial notebooks:
 
 - {doc}`notebooks/cycombine`: main batch-correction pipeline
 - {doc}`notebooks/detect_batch_effects`: diagnostic plots
+- {doc}`notebooks/citeseq_adt_batch_correction`: CITE-seq ADT benchmark
+  against Harmony and totalVI
 
 ## Data conventions
 
@@ -131,6 +133,16 @@ pc.transform_asinh(adata, cofactor=5)
 ### From an existing AnnData
 
 Set `adata.obs["batch"]`.
+
+### From CITE-seq ADT data
+
+CITE-seq antibody-derived tag matrices can be treated as marker-by-cell
+cytometry-like data once loaded into AnnData. Keep raw ADT counts in a layer,
+use a transformed view such as `log1p(counts)` in `adata.X`, and provide the
+batch labels in `adata.obs["batch"]`. The
+{doc}`notebooks/citeseq_adt_batch_correction` tutorial shows this workflow on
+the public scvi-tools PBMC10k/PBMC5k MuData file and compares expression-layer
+cyCombinePy results with embedding methods such as Harmony and totalVI.
 
 ## Preprocessing
 

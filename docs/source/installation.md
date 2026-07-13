@@ -26,12 +26,21 @@ dependencies for specific modules:
 | `[io]`        | `pytometry` for reading raw FCS files via `cycombinepy.io.read_fcs_dir`|
 | `[plotting]`  | `matplotlib` + `seaborn` for the `cycombinepy.plotting` helpers        |
 | `[eval]`      | `scib-metrics` for `cycombinepy.evaluate.scib_metrics`                 |
-| `[all]`       | Everything above                                                     |
+| `[benchmark]` | `muon`, `harmonypy`, `scvi-tools`, plus `[eval,plotting]` for vignettes |
+| `[all]`       | `[io]`, `[eval]`, and `[plotting]`; excludes heavy benchmark packages |
 
 Install with extras, e.g.:
 
 ```bash
 pip install "cycombinepy[all]"
+```
+
+The CITE-seq ADT benchmark notebook uses heavier multimodal dependencies and
+downloads the public scvi-tools PBMC10k/PBMC5k MuData file, about 425 MB.
+Install that environment only when you plan to run the benchmark:
+
+```bash
+pip install "cycombinepy[benchmark]"
 ```
 
 ## Install from source (development)
@@ -83,6 +92,13 @@ jupyter nbconvert --to notebook --execute --inplace \
     docs/source/notebooks/cycombine.ipynb \
     docs/source/notebooks/detect_batch_effects.ipynb
 ```
+
+The CITE-seq ADT notebook stores rendered outputs in the documentation source
+so the website can include benchmark tables and figures without re-executing
+the heavy workflow during Sphinx builds. For manual validation, install
+`cycombinepy[benchmark]`, optionally set `CYCOMBINEPY_CITESEQ_CELLS_PER_BATCH`
+and `TOTALVI_MAX_EPOCHS=2`, then execute
+`docs/source/notebooks/citeseq_adt_batch_correction.ipynb`.
 
 ## Verifying the installation
 

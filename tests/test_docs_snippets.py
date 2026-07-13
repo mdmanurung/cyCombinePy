@@ -1,9 +1,21 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from anndata import AnnData
 
 import cycombinepy as pc
 from cycombinepy.correct import CORRECTED_LAYER
+
+
+def test_benchmark_extra_includes_heavy_citeseq_dependencies():
+    pyproject = Path("pyproject.toml").read_text()
+
+    assert "benchmark = [" in pyproject
+    assert '"cycombinepy[eval,plotting]"' in pyproject
+    assert '"muon>=0.1.6"' in pyproject
+    assert '"harmonypy>=0.0.9"' in pyproject
+    assert '"scvi-tools>=1.1"' in pyproject
 
 
 def test_usage_modular_workflow_with_fixed_labels_avoids_optional_dependencies():

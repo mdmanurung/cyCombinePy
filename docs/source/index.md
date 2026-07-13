@@ -50,6 +50,8 @@ merging, `ComBat_seq`, alternative clustering backends, and `run_analysis`.
   layer-based modular API.
 - {doc}`notebooks/detect_batch_effects`: source-only vignette for diagnostic
   plots and validation behavior.
+- {doc}`notebooks/citeseq_adt_batch_correction`: rendered CITE-seq ADT
+  benchmark comparing cyCombinePy with Harmony and totalVI.
 
 ```{toctree}
 :maxdepth: 2
@@ -66,6 +68,7 @@ citation
 
 notebooks/cycombine
 notebooks/detect_batch_effects
+notebooks/citeseq_adt_batch_correction
 ```
 
 ```{toctree}

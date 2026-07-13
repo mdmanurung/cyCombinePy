@@ -58,6 +58,12 @@ dependencies = [
 io = ["pytometry>=0.1.5", "readfcs>=2"]
 eval = ["scib-metrics>=0.5"]
 plotting = ["matplotlib>=3.7", "seaborn>=0.13"]
+benchmark = [
+    "cycombinepy[eval,plotting]",
+    "muon>=0.1.6",
+    "harmonypy>=0.0.9",
+    "scvi-tools>=1.1",
+]
 docs = [
     "sphinx>=7",
     "furo>=2024.1",
