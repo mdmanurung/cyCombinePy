@@ -18,8 +18,8 @@ construction).
 pip install cycombinepy
 ```
 
-This pulls in the core dependencies. The following optional extras enable
-additional features:
+This pulls in the core dependencies. The following optional extras add
+dependencies for specific modules:
 
 | Extra         | Adds                                                                 |
 | ------------- | -------------------------------------------------------------------- |
@@ -63,7 +63,7 @@ pip install -e ".[all,docs]"
 sphinx-build -b html docs/source docs/build/html
 ```
 
-The generated site lands in `docs/build/html/`. Open `index.html` in a
+The generated site is written to `docs/build/html/`. Open `index.html` in a
 browser, or serve it locally with:
 
 ```bash

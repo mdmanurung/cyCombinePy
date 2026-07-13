@@ -338,7 +338,7 @@ def correct_data(
         report["clusters"]["terms"].append(_json_report_value([]))
         report["clusters"]["exception"].append(_json_report_value(None))
         if present_codes.size <= 1:
-            # Only one batch in this cluster — nothing to correct. (R lines 448-452)
+            # Only one batch in this cluster; nothing to correct. (R lines 448-452)
             report["clusters"]["status"][cluster_pos] = "skipped_single_batch"
             continue
 
@@ -348,7 +348,7 @@ def correct_data(
         # Covar / anchor handling: determine effective level count.
         num_covar = 1
         num_anchor = 1
-        sub_df = None  # lazy — only built when needed
+        sub_df = None  # Built only when needed.
         dropped_terms: list[dict[str, str]] = []
 
         if covar is not None or anchor is not None:
@@ -441,7 +441,7 @@ def correct_data(
         )
 
         # inmoose expects (n_features, n_samples) and is sensitive to float32
-        # underflow in its EB priors → upcast to float64 at the ComBat boundary.
+        # underflow in its EB priors, so upcast to float64 at the ComBat boundary.
         x_t = np.ascontiguousarray(sub_X.T, dtype=np.float64)
         try:
             corrected_sub = run_combat(

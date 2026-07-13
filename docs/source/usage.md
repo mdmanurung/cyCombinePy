@@ -1,11 +1,11 @@
 # Usage guide
 
-This page introduces the `cycombinepy` mental model and walks through the
-recommended workflow. For fully runnable end-to-end examples, see the
+This page describes the `cycombinepy` data model and correction workflow. For
+complete runnable examples, see the
 two tutorial notebooks:
 
-- {doc}`notebooks/cycombine` — main batch-correction pipeline
-- {doc}`notebooks/detect_batch_effects` — diagnostic plots
+- {doc}`notebooks/cycombine`: main batch-correction pipeline
+- {doc}`notebooks/detect_batch_effects`: diagnostic plots
 
 ## Data conventions
 
@@ -25,7 +25,7 @@ two tutorial notebooks:
 
 All functions read from `adata.X` by default; pass `layer=...` to read or
 write a named layer instead. Columns other than `batch` are optional but
-enable additional features (covariate-aware correction, anchor-based
+enable additional behavior (covariate-aware correction, anchor-based
 alignment, diagnostic MDS plots, etc.).
 
 Input validation is deliberately early. Public numerical entry points reject
@@ -60,7 +60,7 @@ report = pc.batch_correct(
 # is stored in adata.uns["cycombinepy_correction"].
 ```
 
-Under the hood this is equivalent to running three steps by hand:
+This call is equivalent to running three steps explicitly:
 
 ```python
 from cycombinepy.correct import CORRECTED_LAYER
@@ -85,7 +85,7 @@ pc.correct_data(
 )
 ```
 
-Use the modular form when you want to swap components (e.g. try
+Use the modular form to change components (for example,
 `norm_method="rank"`), reuse an existing clustering, or inspect the
 intermediate state.
 
@@ -130,7 +130,7 @@ pc.transform_asinh(adata, cofactor=5)
 
 ### From an existing AnnData
 
-Nothing to do — just set `adata.obs["batch"]`.
+Set `adata.obs["batch"]`.
 
 ## Preprocessing
 
@@ -165,9 +165,8 @@ Available methods:
 | `"CLR_med"` | CLR centered on the median                                         |
 | `"qnorm"`   | PCHIP monotone-spline quantile normalization                       |
 
-Normalization is only used to make the SOM clustering resilient to
-batch shifts; the correction step itself runs on the unnormalized
-expression.
+Normalization is used for SOM clustering. The correction step itself runs on
+the unnormalized expression.
 
 ## Clustering
 
@@ -198,7 +197,7 @@ pc.correct_data(
 
 Runs [ComBat](https://github.com/epigenelabs/inmoose) inside each SOM
 cluster in isolation, capping the corrected values to the per-cluster
-min/max of the input (matching R `cyCombine` lines 524–531). Clusters
+min/max of the input (matching R `cyCombine` lines 524-531). Clusters
 with cells from only one batch are skipped and left unchanged. True
 confounded covariate or anchor designs raise `ConfoundedDesignError` by
 default; low-support or skewed terms are dropped and audited in the
@@ -233,8 +232,8 @@ the same interface for Median Absolute Deviation.
 
 ## Detecting batch effects
 
-Before deciding to correct, run the diagnostic plots to confirm there is
-a batch effect worth correcting:
+Before correction, run the diagnostic plots to check whether the data show a
+batch effect:
 
 ```python
 figs = pc.detect_batch_effect_express(
@@ -242,7 +241,7 @@ figs = pc.detect_batch_effect_express(
     downsample=10000, out_dir="before/",
 )
 
-# Or the full report (adds UMAP + per-marker MAD):
+# Or the extended report, which adds UMAP and per-marker MAD:
 figs = pc.detect_batch_effect(
     adata, batch_key="batch", sample_key="sample",
     downsample=10000, out_dir="before/", seed=434,
@@ -251,7 +250,7 @@ figs = pc.detect_batch_effect(
 
 Both functions return a dict of matplotlib figures and optionally save
 them as PNGs under `out_dir`. See the {doc}`notebooks/detect_batch_effects`
-notebook for a walkthrough.
+notebook for the corresponding workflow.
 
 ## Plotting helpers
 
@@ -265,6 +264,6 @@ pcpl.plot_density(adata, batch_key="batch", layer=CORRECTED_LAYER)
 pcpl.plot_emd_heatmap(emd_df)
 ```
 
-These are thin, opinionated wrappers around `scanpy.pl.umap` and
-`seaborn.kdeplot` that handle the before/after layer logic. For fine
-control, call scanpy/seaborn directly.
+These wrappers call `scanpy.pl.umap` and `seaborn.kdeplot` while handling the
+before/after layer logic. For direct control of plot parameters, call
+scanpy/seaborn directly.

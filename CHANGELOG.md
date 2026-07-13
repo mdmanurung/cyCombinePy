@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Version bump to 0.1.1; first release to PyPI and TestPyPI.
 
-## [0.1.0.dev0] — Initial Python port
+## [0.1.0.dev0] - Initial Python port
 
 ### Added
 - Python port of the [cyCombine](https://github.com/biosurf/cyCombine) R package

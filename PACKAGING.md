@@ -16,9 +16,9 @@ twine check dist/*
 
 The build produces two artifacts in `dist/`:
 
-- `cycombinepy-<version>.tar.gz` — source distribution (includes `src/`, `tests/`, `scripts/`,
+- `cycombinepy-<version>.tar.gz`: source distribution (includes `src/`, `tests/`, `scripts/`,
   `inst/extdata/test.fcs`, `CITATION.cff`, `README.md`, `LICENSE`, `CHANGELOG.md`)
-- `cycombinepy-<version>-py3-none-any.whl` — pure-Python wheel (includes only the
+- `cycombinepy-<version>-py3-none-any.whl`: pure-Python wheel (includes only the
   `cycombinepy` package, the `cycombinepy/py.typed` marker, and license metadata)
 
 Artifact checks should confirm that the wheel contains `cycombinepy/py.typed`
@@ -64,7 +64,7 @@ Fields:
 
 ### 2. Create matching GitHub environments
 
-In the repo settings → Environments, create two environments:
+In the repo settings, open Environments and create two environments:
 
 - `testpypi`
 - `pypi`
@@ -77,7 +77,7 @@ blocks on manual approval before the real PyPI upload.
 ### Pre-flight
 
 1. Ensure `main` is green on CI.
-2. Bump the version in `src/cycombinepy/__init__.py` (e.g. `0.1.0.dev0` →
+2. Bump the version in `src/cycombinepy/__init__.py` (e.g. `0.1.0.dev0` to
    `0.1.0`).
 3. Update `CHANGELOG.md`: move items from `## [Unreleased]` into a new
    `## [<version>] - YYYY-MM-DD` section.
@@ -89,16 +89,16 @@ blocks on manual approval before the real PyPI upload.
 
 Two options:
 
-**Option A — manual dispatch (no tag):**
+**Option A: manual dispatch (no tag):**
 
 ```text
-GitHub → Actions → Release → Run workflow → target: testpypi
+GitHub, Actions, Release, Run workflow, target: testpypi
 ```
 
 Workflow builds the release artifacts, runs the artifact smoke gates, and uploads
 to TestPyPI only. Manual dispatch cannot publish to real PyPI.
 
-**Option B — pre-release tag:**
+**Option B: pre-release tag:**
 
 ```bash
 git tag v0.1.0rc1

@@ -1,7 +1,7 @@
-"""High-level ``batch_correct`` orchestrator.
+"""``batch_correct`` orchestration.
 
 Port of ``batch_correct`` in ``R/02_batch_correct.R:66-210``. Runs the full
-cyCombine pipeline: batch-wise normalize → SOM clustering → per-cluster ComBat
+cyCombine pipeline: batch-wise normalization, SOM clustering, and per-cluster ComBat
 correction. Supports iterative correction with multiple SOM grid sizes by
 passing ``xdim``/``ydim`` as sequences.
 """
@@ -120,7 +120,7 @@ def _build_scratch(
 ) -> AnnData:
     """Build a minimal AnnData shim for iterative normalize/cluster/correct.
 
-    Shares only the obs columns that downstream steps actually read, carries
+    Shares only the obs columns that downstream steps read, carries
     ``working`` as ``X`` (so no full-matrix copy), and uses ``markers`` as
     ``var_names`` so ``marker_matrix`` lookups still resolve. ``obs`` is a
     shallow per-column copy so that downstream label writes don't leak back.
@@ -157,7 +157,7 @@ def batch_correct(
     return_report: bool = False,
     uns_key: str = "cycombinepy_correction",
 ) -> AnnData | tuple[AnnData, dict] | dict | None:
-    """Full cyCombine pipeline: normalize → SOM → per-cluster ComBat.
+    """Run normalization, SOM clustering, and per-cluster ComBat.
 
     Parameters
     ----------
@@ -261,7 +261,7 @@ def batch_correct(
 
     for iteration, (x, y) in enumerate(zip(xdims, ydims)):
         # Normalize + cluster on a fresh normalized view. Re-seat the current
-        # working state as scratch.X (in place — _can_write_in_place hits).
+        # working state as scratch.X; _can_write_in_place handles the in-place write.
         set_marker_matrix(scratch, markers, working)
         normalize(
             scratch,

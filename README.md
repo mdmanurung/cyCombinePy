@@ -4,8 +4,8 @@ AnnData-native implementation inspired by
 [cyCombine](https://github.com/biosurf/cyCombine) for batch correction of
 single-cell cytometry data.
 
-cyCombinePy is AnnData-native and reuses existing Python libraries instead of
-reimplementing primitives:
+cyCombinePy stores data in AnnData objects and calls established Python
+packages for the main numerical steps:
 
 - **ComBat**: [`inmoose.pycombat`](https://github.com/epigenelabs/inmoose)
 - **SOM clustering**: [`FlowSOM`](https://github.com/saeyslab/FlowSOM_Python)
@@ -25,9 +25,9 @@ ComBat correction.
 3. **Per-cluster ComBat** correction with optional covariates and anchors
    (`cycombinepy.correct_data`)
 
-Step 1 operates on a normalized view so clusters represent biology rather than
-batch. Step 3 is applied to the unnormalized data per cluster so rare
-populations aren't over-corrected.
+Step 1 operates on a normalized view so clusters are less driven by batch. Step
+3 is applied to the unnormalized data per cluster so rare populations are not
+over-corrected.
 
 Out of scope for cyCombinePy are:
 
@@ -57,7 +57,7 @@ adata = read_fcs_dir(
 # 2. Inspect batch effects before correction
 figs = pc.detect_batch_effect_express(adata, out_dir="before/")
 
-# 3. End-to-end batch correction
+# 3. Run batch correction
 pc.batch_correct(
     adata,
     xdim=8, ydim=8,

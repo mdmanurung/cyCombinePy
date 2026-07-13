@@ -46,7 +46,7 @@ def _scale_block(block: np.ndarray) -> np.ndarray:
     """Column-wise z-score (ddof=1) over a (n_cells, n_markers) block."""
     mu = block.mean(axis=0)
     sd = block.std(axis=0, ddof=1)
-    # For bad (zero or non-finite) sd columns, divide by 1.0 → (x - mu) is returned.
+    # For bad (zero or non-finite) sd columns, divide by 1.0 so (x - mu) is returned.
     bad = (sd == 0) | ~np.isfinite(sd)
     safe_sd = np.where(bad, 1.0, sd)
     out = (block - mu) / safe_sd

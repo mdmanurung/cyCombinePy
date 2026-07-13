@@ -1,6 +1,6 @@
 """Plotting helpers.
 
-Pragmatic subset of ``R/utils_plotting.R``: density comparison, dimensionality
+Subset of ``R/utils_plotting.R``: density comparison, dimensionality
 reduction, and an EMD heatmap summary.
 """
 
@@ -25,8 +25,8 @@ def plot_density(
 ):
     """Per-marker density plot colored by batch.
 
-    If ``layer`` is set and present, the corrected distribution is overlaid
-    alongside the uncorrected ``adata.X`` for easy before/after comparison.
+    If ``layer`` is set and present, the corrected distribution is plotted
+    alongside the uncorrected ``adata.X`` for before/after comparison.
     Mirrors ``plot_density`` in ``R/utils_plotting.R``.
     """
     import matplotlib.pyplot as plt

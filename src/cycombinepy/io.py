@@ -1,7 +1,7 @@
 """FCS I/O utilities.
 
 Port of ``compile_fcs`` / ``convert_flowset`` / ``prepare_data`` from
-``R/01_prepare_data.R``. Uses ``pytometry`` (``readfcs`` under the hood) to parse
+``R/01_prepare_data.R``. Uses ``pytometry`` (with ``readfcs`` internally) to parse
 FCS files into AnnData.
 """
 
@@ -24,12 +24,12 @@ from cycombinepy.preprocessing import transform_asinh
 def _read_fcs_one(path: str | os.PathLike) -> AnnData:
     """Read a single FCS file into AnnData via pytometry/readfcs.
 
-    We import pytometry's reader lazily so that the top-level ``import
+    The pytometry reader is imported lazily so that the top-level ``import
     cycombinepy.io`` works even if pytometry isn't installed.
     """
     try:
-        # Import the submodule directly — pytometry's top-level package pulls in
-        # heavy optional deps that we don't need just for reading FCS.
+        # Import the submodule directly. pytometry's top-level package imports
+        # optional dependencies that are not needed for reading FCS.
         from pytometry.io._readfcs import read_fcs as _pt_read_fcs  # type: ignore
     except ImportError:
         try:

@@ -147,7 +147,7 @@ def detect_batch_effect(
     out_dir: str | os.PathLike | None = None,
     seed: int = 472,
 ) -> dict:
-    """Comprehensive batch-effect diagnostic: express + UMAP + MAD summary.
+    """Extended batch-effect diagnostic: express output plus UMAP and MAD.
 
     Matches ``detect_batch_effect`` in ``R/detect_batch_effect.R``.
     """

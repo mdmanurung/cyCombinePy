@@ -250,7 +250,7 @@ def check_confound(batch, mod: np.ndarray | None = None) -> bool:
         return False
 
     rank = np.linalg.matrix_rank(design)
-    # Rank-deficient design after dropping intercept columns ⇒ confounded.
+    # Rank-deficient design after dropping intercept columns is confounded.
     # The R version branches on ncol vs n_batch for messaging, but the final
     # result is TRUE in every sub-branch.
     return bool(rank < design.shape[1])

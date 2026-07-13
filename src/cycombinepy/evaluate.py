@@ -1,7 +1,7 @@
 """Batch-effect evaluation: EMD, MAD, and a scib-metrics wrapper.
 
 Ports of ``compute_emd`` / ``evaluate_emd`` / ``compute_mad`` / ``evaluate_mad``
-from ``R/evaluate_performance.R``, plus a thin wrapper over ``scib_metrics`` for
+from ``R/evaluate_performance.R``, plus a wrapper over ``scib_metrics`` for
 scanpy-native benchmark metrics (kBET, iLISI/cLISI, graph connectivity, ...).
 """
 
@@ -213,12 +213,12 @@ def scib_metrics(
     embedding_key: str = "X_pca",
     layer: str | None = None,
 ) -> dict:
-    """Run a minimal scib-metrics benchmark on an AnnData.
+    """Run selected scib-metrics batch-correction metrics on an AnnData.
 
     Computes a PCA on ``adata.X`` (or ``adata.layers[layer]`` if supplied) and
-    evaluates batch-mixing metrics from :mod:`scib_metrics`. This is a convenient
-    drop-in for comparing before/after correction; call it twice and diff the
-    resulting dicts.
+    evaluates batch-mixing metrics from :mod:`scib_metrics`. To compare
+    uncorrected and corrected data, call it once for each representation and
+    compare the returned dictionaries.
 
     Returns a dict of scalar scores. Metrics that require a biological label are
     skipped if ``label_key`` is ``None``.
