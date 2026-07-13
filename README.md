@@ -185,20 +185,51 @@ For local development from a checkout:
 pip install -e ".[all,dev]"
 ```
 
-## Agent skill
+## Claude Code skill
 
-cyCombinePy ships a bundled agent skill for Claude Code and Codex. The skill is
-installed with the Python package and can be copied into your personal agent
-skill directories with:
+cyCombinePy ships an [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills)
+for [Claude Code](https://claude.com/claude-code). The skill teaches the agent
+the package conventions: AnnData layout, arcsinh transformation, FlowSOM
+clustering, per-cluster ComBat correction, strict correction reports, and
+EMD/MAD evaluation.
+
+The skill is bundled with the Python package, but Claude Code does not scan
+installed Python packages. Install it once into your personal Claude Code skills
+directory:
 
 ```bash
-cycombinepy-install-skills
+cycombinepy-install-skills --agent claude
 ```
 
-By default this installs to both `~/.claude/skills/cycombinepy/` and
-`~/.codex/skills/cycombinepy/`. Use `--agent claude` or `--agent codex` to
-install one target, `--force` to refresh an existing copy, and `--print-path` to
-print the bundled skill path without copying it.
+This copies the skill to `~/.claude/skills/cycombinepy/`, where it is available
+to Claude Code in every project. Re-run with `--force` after upgrading
+cyCombinePy to refresh the installed copy:
+
+```bash
+cycombinepy-install-skills --agent claude --force
+```
+
+Once installed, ask Claude Code to work on cyCombinePy tasks such as "set up an
+AnnData object for batch correction", "run FlowSOM and per-cluster ComBat", or
+"evaluate correction with EMD and MAD". The skill is a small router
+(`SKILL.md`) that points to reference workflows loaded only when needed.
+
+If you would rather not copy files into your home directory, point Claude Code
+at the bundled copy in place instead:
+
+```bash
+export CLAUDE_SKILLS_PATH="$(cycombinepy-install-skills --print-path)"
+```
+
+The same bundled skill can also be installed for Codex:
+
+```bash
+cycombinepy-install-skills --agent codex
+```
+
+Running `cycombinepy-install-skills` without `--agent` installs both targets:
+`~/.claude/skills/cycombinepy/` and
+`${CODEX_HOME:-~/.codex}/skills/cycombinepy/`.
 
 ## Data structure conventions
 
