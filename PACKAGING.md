@@ -22,7 +22,8 @@ The build produces two artifacts in `dist/`:
   `cycombinepy` package, the `cycombinepy/py.typed` marker, and license metadata)
 
 Artifact checks should confirm that the wheel contains `cycombinepy/py.typed`
-and that the sdist contains both `inst/extdata/test.fcs` and `CITATION.cff`.
+and `cycombinepy/_skills/data/SKILL.md`, and that the sdist contains both
+`inst/extdata/test.fcs` and `CITATION.cff`.
 
 The version is single-sourced from `src/cycombinepy/__init__.py` via
 `[tool.hatch.version]`. Bump it there, not in `pyproject.toml`.

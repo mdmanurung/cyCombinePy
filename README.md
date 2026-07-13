@@ -185,6 +185,21 @@ For local development from a checkout:
 pip install -e ".[all,dev]"
 ```
 
+## Agent skill
+
+cyCombinePy ships a bundled agent skill for Claude Code and Codex. The skill is
+installed with the Python package and can be copied into your personal agent
+skill directories with:
+
+```bash
+cycombinepy-install-skills
+```
+
+By default this installs to both `~/.claude/skills/cycombinepy/` and
+`~/.codex/skills/cycombinepy/`. Use `--agent claude` or `--agent codex` to
+install one target, `--force` to refresh an existing copy, and `--print-path` to
+print the bundled skill path without copying it.
+
 ## Data structure conventions
 
 - `adata.X`: cells × markers expression (post-asinh, pre-correction)

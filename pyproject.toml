@@ -87,6 +87,9 @@ Issues = "https://github.com/mdmanurung/cyCombinePy/issues"
 Changelog = "https://github.com/mdmanurung/cyCombinePy/blob/main/CHANGELOG.md"
 "Original R package" = "https://github.com/biosurf/cyCombine"
 
+[project.scripts]
+cycombinepy-install-skills = "cycombinepy._skills.install:main"
+
 [tool.hatch.version]
 path = "src/cycombinepy/__init__.py"
 

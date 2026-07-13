@@ -109,3 +109,24 @@ print("corrected layer:", adata.layers["cycombine_corrected"].shape)
 
 If that prints a `(400, 5)` shape without raising, your installation is
 working.
+
+## Installing the agent skill
+
+cyCombinePy bundles a Claude Code/Codex skill inside the installed package. It
+is copied into personal agent skill directories with:
+
+```bash
+cycombinepy-install-skills
+```
+
+The default target is both `~/.claude/skills/cycombinepy/` and
+`~/.codex/skills/cycombinepy/`. To install one target:
+
+```bash
+cycombinepy-install-skills --agent claude
+cycombinepy-install-skills --agent codex
+```
+
+Use `--force` after upgrading cyCombinePy to refresh an existing copy. Use
+`--print-path` to print the bundled skill directory when you want to point an
+agent at the package copy directly.
