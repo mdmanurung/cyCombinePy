@@ -22,7 +22,9 @@ def _notebook_output_text(path: str) -> str:
                 text = output["text"]
                 parts.append("".join(text) if isinstance(text, list) else text)
             data = output.get("data", {})
-            for value in data.values():
+            for mime_type, value in data.items():
+                if mime_type.startswith("image/"):
+                    continue
                 parts.append("".join(value) if isinstance(value, list) else str(value))
     return "\n".join(parts)
 
@@ -55,7 +57,11 @@ def test_citeseq_adt_vignette_documents_benchmark_workflow():
     assert "cycombinepy.correct_data" in source
     assert "harmonypy.run_harmony" in source
     assert "scvi.model.TOTALVI.setup_mudata" in source
-    assert "Harmony is embedding-only for this benchmark" in source
+    assert "Harmony is therefore included only in the embedding benchmark" in source
+    assert "totalVI log1p denoised" in source
+    assert "benchmark_table.merge" not in source
+    assert "display(expression_table)" in source
+    assert "display(embedding_table)" in source
 
 
 def test_citeseq_adt_vignette_uses_scib_metrics_and_has_rendered_outputs():
@@ -77,6 +83,8 @@ def test_citeseq_adt_vignette_uses_scib_metrics_and_has_rendered_outputs():
     assert "synthetic fallback" not in outputs
     assert "Harmony: ok" in outputs
     assert "totalVI: ok" in outputs
+    assert "totalVI log1p denoised" in outputs
+    assert "NaN" not in outputs
 
 
 def test_vignettes_use_plain_academic_prose_without_em_dashes():
