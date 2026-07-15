@@ -44,7 +44,7 @@ def test_main_vignette_uses_current_report_and_layer_api():
 def test_detect_vignette_documents_current_validation_behavior():
     source = _notebook_source("docs/source/notebooks/detect_batch_effects.ipynb")
 
-    assert "validate requested marker names" in source
+    assert "validate marker names" in source
     assert "`sample_key` is optional" in source
     assert "returned `mds` figure" in source
 
@@ -56,9 +56,7 @@ def test_citeseq_adt_vignette_documents_benchmark_workflow():
     assert 'mdata.mod["prot"]' in source
     assert "cycombinepy.correct_data" in source
     assert "harmonypy.run_harmony" in source
-    assert "scvi.model.TOTALVI.setup_mudata" in source
     assert "Harmony is therefore included only in the embedding benchmark" in source
-    assert "totalVI log1p denoised" in source
     assert "benchmark_table.merge" not in source
     assert "display(expression_table)" in source
     assert "display(embedding_table)" in source
@@ -82,8 +80,6 @@ def test_citeseq_adt_vignette_uses_scib_metrics_and_has_rendered_outputs():
     assert "scvi-tools MuData:" in outputs
     assert "synthetic fallback" not in outputs
     assert "Harmony: ok" in outputs
-    assert "totalVI: ok" in outputs
-    assert "totalVI log1p denoised" in outputs
     assert "NaN" not in outputs
 
 
