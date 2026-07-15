@@ -27,7 +27,6 @@ extensions = [
     "myst_nb",
 ]
 
-templates_path = ["_templates"]
 exclude_patterns: list[str] = ["_build", "Thumbs.db", ".DS_Store"]
 # myst_nb registers parsers for .md and .ipynb; .rst is handled by Sphinx itself.
 source_suffix = {
